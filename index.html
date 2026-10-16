@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Penjaringan Calon Ketua RT</title>
+  <title>Form Penjaringan Calon Ketua RT</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -58,7 +58,15 @@
       font-size: 0.95rem;
       font-weight: 600;
       color: #334155;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+    }
+
+    .label-hint {
+      font-weight: 400;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      display: block;
+      margin-top: 2px;
     }
 
     input[type="text"], select, textarea {
@@ -90,25 +98,22 @@
       background: white;
     }
 
+    input.input-error {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    input.input-ok {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
     textarea {
       resize: vertical;
-      min-height: 90px;
+      min-height: 80px;
     }
 
-    .code-input {
-      text-transform: uppercase;
-      letter-spacing: 6px;
-      text-align: center;
-      font-size: 1.5rem !important;
-      font-weight: 700;
-      padding: 20px 16px !important;
-    }
-
-    .code-input::placeholder {
-      letter-spacing: 1px;
-      font-size: 0.9rem;
-      font-weight: 400;
-    }
+    .field-group { margin-top: 20px; }
 
     .btn {
       display: block;
@@ -125,6 +130,7 @@
       transition: background 0.2s, transform 0.1s;
       text-align: center;
       text-decoration: none;
+      margin-top: 18px;
     }
 
     .btn:disabled {
@@ -137,16 +143,10 @@
       transform: scale(0.98);
     }
 
-    .btn-verify {
-      background: #3b82f6;
-      margin-top: 14px;
-    }
-
     .btn-outline {
       background: white;
       color: #1e40af;
       border: 2px solid #1e40af;
-      margin-top: 12px;
     }
 
     .btn-outline:not(:disabled):active {
@@ -156,48 +156,40 @@
     .msg {
       padding: 14px 16px;
       border-radius: 10px;
-      font-size: 0.95rem;
-      margin-top: 14px;
+      font-size: 0.9rem;
+      margin-top: 12px;
       line-height: 1.5;
       display: none;
     }
 
-    .msg.error {
-      background: #fef2f2;
-      color: #dc2626;
-      display: block;
+    .msg.error { background: #fef2f2; color: #dc2626; display: block; }
+    .msg.success { background: #f0fdf4; color: #16a34a; display: block; }
+    .msg.warning { background: #fffbeb; color: #b45309; display: block; }
+
+    .format-hint {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 8px;
+      line-height: 1.5;
     }
 
-    .msg.success {
-      background: #f0fdf4;
-      color: #16a34a;
-      display: block;
+    .format-hint code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
     }
 
-    .verified-info {
+    .format-status {
+      font-size: 0.85rem;
+      margin-top: 8px;
       display: none;
-      padding: 16px;
-      background: #f0fdf4;
-      border: 2px solid #bbf7d0;
-      border-radius: 12px;
-      margin-top: 14px;
     }
 
-    .verified-info .check {
-      color: #16a34a;
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 4px;
-    }
+    .format-status.ok { color: #16a34a; display: block; }
+    .format-status.bad { color: #dc2626; display: block; }
 
-    .verified-info .detail {
-      color: #166534;
-      font-size: 0.875rem;
-    }
-
-    #step2 { display: none; }
-    .field-group { margin-top: 20px; }
-
+    /* Success screen */
     .success-screen {
       display: none;
       text-align: center;
@@ -248,52 +240,70 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(238,242,247,0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      font-size: 1rem;
+      color: #1e40af;
+      font-weight: 600;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
   </style>
 </head>
 
 <body>
+  <div class="loading-overlay" id="pageLoading">
+    <div>Memuat data warga...</div>
+  </div>
+
   <div class="container">
     <div class="header">
       <h1>Penjaringan Calon Ketua RT</h1>
-      <p>Masukkan kode verifikasi yang telah dikirim ke WhatsApp Anda</p>
+      <p>Setiap KK cukup mengusulkan 1 nama calon</p>
     </div>
 
-    <!-- STEP 1 -->
-    <div class="card" id="step1">
-      <label for="codeInput">Kode Verifikasi</label>
-      <input type="text" id="codeInput" class="code-input"
-        placeholder="Masukkan kode" maxlength="6"
-        autocomplete="off" autocapitalize="characters"
-        inputmode="text" spellcheck="false">
-      <div class="msg" id="codeMsg"></div>
-      <div class="verified-info" id="verifiedInfo">
-        <div class="check">&#10003; Kode valid</div>
-        <div class="detail" id="verifiedDetail"></div>
+    <!-- FORM -->
+    <div id="formSection">
+      <div class="card">
+        <label for="submitterInput">
+          Nama / Blok-Rumah Anda
+          <span class="label-hint">Contoh: Alex / F9-01</span>
+        </label>
+        <input type="text" id="submitterInput"
+          placeholder="Nama / Blok-Rumah"
+          autocomplete="off" spellcheck="false">
+        <div class="format-status" id="formatStatus"></div>
+        <div class="format-hint">
+          Format: <code>Nama / Blok-Rumah</code> &mdash;
+          contoh: <code>Alex / F9-01</code>, <code>Tri / F4-18</code>
+        </div>
       </div>
-      <button class="btn btn-verify" id="btnVerify" onclick="verifyCode()">
-        Verifikasi Kode
-      </button>
-    </div>
 
-    <!-- STEP 2 -->
-    <div id="step2">
       <div class="card">
         <label for="candidateSelect">Nama Calon Yang Diusulkan</label>
-        <select id="candidateSelect" style="display:none;">
+        <select id="candidateSelect">
           <option value="">— Pilih nama calon —</option>
         </select>
-        <input type="text" id="candidateInput" placeholder="Ketik nama calon"
-          style="display:none;">
 
         <div class="field-group">
-          <label for="reasonInput">Alasan Mengusulkan
+          <label for="reasonInput">
+            Alasan Mengusulkan
             <span style="font-weight:400;color:#94a3b8;">(opsional)</span>
           </label>
           <textarea id="reasonInput" placeholder="Tulis alasan Anda..."></textarea>
         </div>
 
         <div class="msg" id="submitMsg"></div>
-        <button class="btn" id="btnSubmit" onclick="submitForm()" style="margin-top:18px;">
+        <button class="btn" id="btnSubmit" onclick="submitForm()">
           Kirim Usulan
         </button>
       </div>
@@ -314,12 +324,13 @@
   </div>
 
   <script>
-    // ▼▼▼ GANTI URL INI dengan URL deployment Apps Script kamu ▼▼▼
-    var API_URL = 'https://script.google.com/macros/s/AKfycbywXMGIl9RTXhDglyMnNfTdbfZU7bbogv9OpCV6OHDt_TjoPOfr8a4THutN1KQchHPisQ/exec';
+    // ▼▼▼ GANTI URL INI dengan URL deployment Apps Script ▼▼▼
+    var API_URL = 'https://script.google.com/macros/s/XXXXXXXXXX/exec';
     // ▲▲▲ GANTI URL DI ATAS ▲▲▲
 
-    var verifiedCode = '';
+    var wargaData = [];
 
+    // ── API helper ──
     function api(action, params) {
       var url = API_URL + '?action=' + action;
       if (params) {
@@ -330,79 +341,79 @@
       return fetch(url).then(function(r) { return r.json(); });
     }
 
-    function verifyCode() {
-      var code = document.getElementById('codeInput').value.trim();
-      var btn = document.getElementById('btnVerify');
-      var msg = document.getElementById('codeMsg');
+    // ── Format validation (client-side, real-time) ──
+    var formatRegex = /^.+\s*\/?\s*[A-Za-z]{1,3}\d{1,3}\s*-\s*\d{1,4}$/;
 
-      if (!code) { showMsg(msg, 'error', 'Masukkan kode verifikasi.'); return; }
+    function checkFormat() {
+      var input = document.getElementById('submitterInput');
+      var status = document.getElementById('formatStatus');
+      var val = input.value.trim();
 
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Memverifikasi...';
-      hideMsg(msg);
+      if (!val) {
+        input.className = '';
+        status.className = 'format-status';
+        status.textContent = '';
+        return;
+      }
 
-      api('validate', { code: code })
+      if (formatRegex.test(val)) {
+        input.className = 'input-ok';
+        status.className = 'format-status ok';
+        status.textContent = '✓ Format benar';
+      } else {
+        input.className = 'input-error';
+        status.className = 'format-status bad';
+        status.textContent = '✗ Format salah — contoh: Alex / F9-01';
+      }
+    }
+
+    document.getElementById('submitterInput').addEventListener('input', checkFormat);
+
+    // ── Load daftar warga ──
+    function loadWarga() {
+      document.getElementById('pageLoading').classList.add('show');
+
+      api('warga')
         .then(function(result) {
-          btn.disabled = false;
-          btn.textContent = 'Verifikasi Kode';
+          document.getElementById('pageLoading').classList.remove('show');
+          wargaData = result.data || [];
 
-          if (!result.valid) {
-            showMsg(msg, 'error', result.message);
-            document.getElementById('codeInput').value = '';
-            document.getElementById('codeInput').focus();
-            return;
-          }
+          var select = document.getElementById('candidateSelect');
 
-          verifiedCode = code;
-          document.getElementById('verifiedDetail').textContent =
-            result.name + ' — ' + result.house;
-          document.getElementById('verifiedInfo').style.display = 'block';
-          document.getElementById('codeInput').disabled = true;
-          btn.style.display = 'none';
-
-          loadCandidates();
-          document.getElementById('step2').style.display = 'block';
-          setTimeout(function() {
-            document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
-          }, 200);
+          wargaData.forEach(function(w) {
+            var opt = document.createElement('option');
+            var label = w.house ? w.name + ' / ' + w.house : w.name;
+            opt.value = label;
+            opt.textContent = label;
+            select.appendChild(opt);
+          });
         })
         .catch(function() {
-          btn.disabled = false;
-          btn.textContent = 'Verifikasi Kode';
-          showMsg(msg, 'error', 'Gagal menghubungi server. Coba lagi.');
+          document.getElementById('pageLoading').classList.remove('show');
         });
     }
 
-    function loadCandidates() {
-      api('candidates')
-        .then(function(result) {
-          var list = result.data || [];
-          if (list.length > 0) {
-            var select = document.getElementById('candidateSelect');
-            list.forEach(function(name) {
-              var opt = document.createElement('option');
-              opt.value = name;
-              opt.textContent = name;
-              select.appendChild(opt);
-            });
-            select.style.display = 'block';
-          } else {
-            document.getElementById('candidateInput').style.display = 'block';
-          }
-        });
-    }
-
+    // ── Submit ──
     function submitForm() {
-      var select = document.getElementById('candidateSelect');
-      var input = document.getElementById('candidateInput');
-      var candidate = select.style.display !== 'none'
-        ? select.value : input.value.trim();
+      var submitter = document.getElementById('submitterInput').value.trim();
+      var candidate = document.getElementById('candidateSelect').value;
       var reason = document.getElementById('reasonInput').value.trim();
       var btn = document.getElementById('btnSubmit');
       var msg = document.getElementById('submitMsg');
 
+      // Client-side validation
+      if (!submitter) {
+        showMsg(msg, 'error', 'Masukkan nama dan blok-rumah Anda.');
+        return;
+      }
+
+      if (!formatRegex.test(submitter)) {
+        showMsg(msg, 'warning', 'Format identitas salah. Gunakan format: Nama / Blok-Rumah (contoh: Alex / F9-01)');
+        return;
+      }
+
       if (!candidate) {
-        showMsg(msg, 'error', 'Pilih nama calon terlebih dahulu.');
+        showMsg(msg, 'error', 'Pilih nama calon yang diusulkan.');
         return;
       }
 
@@ -410,7 +421,7 @@
       btn.innerHTML = '<span class="spinner"></span> Mengirim...';
       hideMsg(msg);
 
-      api('submit', { code: verifiedCode, candidate: candidate, reason: reason })
+      api('submit', { submitter: submitter, candidate: candidate, reason: reason })
         .then(function(result) {
           btn.disabled = false;
           btn.textContent = 'Kirim Usulan';
@@ -420,8 +431,8 @@
             return;
           }
 
-          document.getElementById('step1').style.display = 'none';
-          document.getElementById('step2').style.display = 'none';
+          // Sukses
+          document.getElementById('formSection').style.display = 'none';
           document.getElementById('successScreen').style.display = 'block';
           window.scrollTo({ top: 0, behavior: 'smooth' });
         })
@@ -442,13 +453,8 @@
       el.textContent = '';
     }
 
-    document.getElementById('codeInput').addEventListener('input', function() {
-      if (this.value.trim().length === 6) verifyCode();
-    });
-
-    document.getElementById('codeInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); verifyCode(); }
-    });
+    // ── Init ──
+    loadWarga();
   </script>
 </body>
 </html>
