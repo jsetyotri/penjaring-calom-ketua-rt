@@ -209,14 +209,9 @@
     }
 
     function render(data) {
-      var pct = data.registeredCount
-        ? Math.round(data.submittedCount / data.registeredCount * 100)
-        : 0;
-
-      document.getElementById('submittedCount').textContent =
-        data.submittedCount + ' / ' + data.registeredCount;
+      document.getElementById('submittedCount').textContent = data.submittedCount;
       document.getElementById('submittedDetail').textContent =
-        'Partisipasi ' + pct + '%';
+        'KK sudah mengusulkan';
       document.getElementById('totalVotes').textContent = data.totalVotes;
       document.getElementById('updatedAt').textContent =
         'Diperbarui: ' + data.updatedAt;
