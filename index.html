@@ -262,7 +262,7 @@
 
 <body>
   <div class="loading-overlay" id="pageLoading">
-    <div>Memuat data warga...</div>
+    <div>Memuat daftar calon...</div>
   </div>
 
   <div class="container">
@@ -284,7 +284,7 @@
         <div class="format-status" id="formatStatus"></div>
         <div class="format-hint">
           Format: <code>Nama / Blok-Rumah</code> &mdash;
-          contoh: <code>Alex / F9-01</code>
+          contoh: <code>Alex / F9-01</code>, <code>Tri / F4-18</code>
         </div>
       </div>
 
@@ -328,8 +328,6 @@
     var API_URL = 'https://script.google.com/macros/s/AKfycbywXMGIl9RTXhDglyMnNfTdbfZU7bbogv9OpCV6OHDt_TjoPOfr8a4THutN1KQchHPisQ/exec';
     // ▲▲▲ GANTI URL DI ATAS ▲▲▲
 
-    var wargaData = [];
-
     // ── API helper ──
     function api(action, params) {
       var url = API_URL + '?action=' + action;
@@ -369,22 +367,21 @@
 
     document.getElementById('submitterInput').addEventListener('input', checkFormat);
 
-    // ── Load daftar warga ──
-    function loadWarga() {
+    // ── Load daftar calon (dari tab Kode KK) ──
+    function loadCandidates() {
       document.getElementById('pageLoading').classList.add('show');
 
-      api('warga')
+      api('candidates')
         .then(function(result) {
           document.getElementById('pageLoading').classList.remove('show');
-          wargaData = result.data || [];
-
+          var candidates = result.data || [];
           var select = document.getElementById('candidateSelect');
 
-          wargaData.forEach(function(w) {
+          candidates.forEach(function(c) {
             var opt = document.createElement('option');
-            var label = w.house ? w.name + ' / ' + w.house : w.name;
-            opt.value = label;
-            opt.textContent = label;
+            var label = c.house ? c.name + ' / ' + c.house : c.name;
+            opt.value = c.name;        // yang disimpan hanya nama
+            opt.textContent = label;    // yang ditampilkan: Nama / Blok
             select.appendChild(opt);
           });
         })
@@ -454,7 +451,7 @@
     }
 
     // ── Init ──
-    loadWarga();
+    loadCandidates();
   </script>
 </body>
 </html>
