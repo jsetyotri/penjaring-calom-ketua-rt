@@ -379,7 +379,7 @@
 
           candidates.forEach(function(c) {
             var opt = document.createElement('option');
-            var label = c.house ? c.name + ' / ' + c.house : c.name;
+            var label = c.house ? c.house + ' — ' + c.name : c.name;
             opt.value = c.name;        // yang disimpan hanya nama
             opt.textContent = label;    // yang ditampilkan: Nama / Blok
             select.appendChild(opt);
