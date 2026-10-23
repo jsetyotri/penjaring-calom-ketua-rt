@@ -778,29 +778,14 @@
       });
       html += '</table>';
 
-      // Daftar lengkap
-      html += '<h2>Daftar Kehadiran Lengkap</h2>';
-      html += '<table><tr><th>No</th><th>Blok</th><th>Nama</th><th>Status</th><th>Waktu</th></tr>';
-      allWarga.forEach(function(w, i) {
-        var badge = w.hadir
-          ? '<span class="badge badge-hadir">Hadir</span>'
-          : '<span class="badge badge-belum">Belum</span>';
+      // Daftar hadir saja
+      html += '<h2>Daftar Warga Hadir (' + hadirList.length + ' KK)</h2>';
+      html += '<table><tr><th>No</th><th>Blok</th><th>Nama</th><th>Waktu</th></tr>';
+      hadirList.forEach(function(w, i) {
         html += '<tr><td>' + (i + 1) + '</td><td>' + esc(w.blok) +
-          '</td><td>' + esc(w.nama) + '</td><td>' + badge +
-          '</td><td>' + (w.timestamp || '-') + '</td></tr>';
+          '</td><td>' + esc(w.nama) + '</td><td>' + (w.timestamp || '-') + '</td></tr>';
       });
       html += '</table>';
-
-      // Daftar belum hadir
-      if (belumList.length > 0) {
-        html += '<h2>Belum Hadir (' + belumList.length + ' KK)</h2>';
-        html += '<table><tr><th>No</th><th>Blok</th><th>Nama</th></tr>';
-        belumList.forEach(function(w, i) {
-          html += '<tr><td>' + (i + 1) + '</td><td>' + esc(w.blok) +
-            '</td><td>' + esc(w.nama) + '</td></tr>';
-        });
-        html += '</table>';
-      }
 
       html += '<div class="footer-note">Dicetak pada ' + tgl +
         ' pukul ' + new Date().toLocaleTimeString('id-ID') +
