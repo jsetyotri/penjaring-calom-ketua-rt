@@ -350,6 +350,18 @@
     .status-badge.hadir { background: #fef9c3; color: #a16207; }
     .status-badge.coblos { background: #dcfce7; color: #16a34a; }
 
+    .sumber-tag {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .sumber-tag.mandiri { background: #dbeafe; color: #1d4ed8; }
+    .sumber-tag.petugas { background: #fce7f3; color: #be185d; }
+
     .btn-action {
       padding: 7px 12px;
       font-size: 0.75rem;
@@ -811,7 +823,7 @@
         info.className = 'warga-info';
         var infoHTML = '<div class="warga-blok">' + esc(w.blok) + '</div>';
         if (w.nama) infoHTML += '<div class="warga-nama">' + esc(w.nama) + '</div>';
-        if (w.waktuHadir) infoHTML += '<div class="warga-time">Hadir ' + esc(w.waktuHadir) + '</div>';
+        if (w.waktuHadir) infoHTML += '<div class="warga-time">Hadir ' + esc(w.waktuHadir) + ' ' + sumberTag(w.sumber) + '</div>';
         if (w.coblos && w.waktuCoblos) infoHTML += '<div class="warga-time coblos-time">Coblos ' + esc(w.waktuCoblos) + '</div>';
         info.innerHTML = infoHTML;
 
@@ -916,7 +928,7 @@
 
           var infoHTML = '<div class="warga-blok">' + esc(w.blok) + '</div>';
           if (w.nama) infoHTML += '<div class="warga-nama">' + esc(w.nama) + '</div>';
-          if (w.hadir && w.waktuHadir) infoHTML += '<div class="warga-time">Hadir ' + esc(w.waktuHadir) + '</div>';
+          if (w.hadir && w.waktuHadir) infoHTML += '<div class="warga-time">Hadir ' + esc(w.waktuHadir) + ' ' + sumberTag(w.sumber) + '</div>';
           if (w.coblos && w.waktuCoblos) infoHTML += '<div class="warga-time coblos-time">Coblos ' + esc(w.waktuCoblos) + '</div>';
           info.innerHTML = infoHTML;
 
@@ -1016,6 +1028,13 @@
       return d.innerHTML;
     }
 
+    function sumberTag(sumber) {
+      if (!sumber) return '';
+      var cls = sumber.toLowerCase() === 'mandiri' ? 'mandiri' : 'petugas';
+      var label = sumber.toLowerCase() === 'mandiri' ? 'QR Mandiri' : 'Via Petugas';
+      return '<span class="sumber-tag ' + cls + '">' + label + '</span>';
+    }
+
     // ── Refresh ──
     function refreshData() {
       loadData();
@@ -1093,11 +1112,12 @@
       lines.push('');
 
       lines.push('DAFTAR LENGKAP');
-      lines.push('No,Blok,Nama,Status,Waktu Hadir,Waktu Coblos');
+      lines.push('No,Blok,Nama,Status,Sumber,Waktu Hadir,Waktu Coblos');
       allWarga.forEach(function(w, i) {
         var status = w.coblos ? 'Sudah Coblos' : (w.hadir ? 'Hadir' : 'Belum');
+        var sumber = w.sumber ? (w.sumber === 'Mandiri' ? 'QR Mandiri' : 'Via Petugas') : '-';
         lines.push((i+1) + ',' + w.blok + ',"' + w.nama + '",' + status + ',' +
-          (w.waktuHadir || '-') + ',' + (w.waktuCoblos || '-'));
+          sumber + ',' + (w.waktuHadir || '-') + ',' + (w.waktuCoblos || '-'));
       });
 
       var csv = '﻿' + lines.join('\n');
@@ -1173,10 +1193,12 @@
       html += '</table>';
 
       html += '<table class="daftar">';
-      html += '<tr><th>No</th><th>Nama</th><th>Blok</th><th>Waktu Hadir</th><th>Waktu Coblos</th></tr>';
+      html += '<tr><th>No</th><th>Nama</th><th>Blok</th><th>Sumber</th><th>Waktu Hadir</th><th>Waktu Coblos</th></tr>';
       coblosList.forEach(function(w, i) {
+        var sumber = w.sumber ? (w.sumber === 'Mandiri' ? 'QR Mandiri' : 'Via Petugas') : '-';
         html += '<tr><td class="c">' + (i+1) + '</td><td>' + esc(w.nama) +
           '</td><td class="c">' + esc(w.blok) +
+          '</td><td class="c">' + sumber +
           '</td><td class="c">' + (w.waktuHadir || '-') +
           '</td><td class="c">' + (w.waktuCoblos || '-') + '</td></tr>';
       });
