@@ -711,88 +711,98 @@
       var hadirList = allWarga.filter(function(w) { return w.hadir; });
       var belumList = allWarga.filter(function(w) { return !w.hadir; });
       var persen = Math.round(hadirList.length / totalKK * 100);
-      var tgl = new Date().toLocaleDateString('id-ID', {
+
+      // Sort hadir berdasarkan waktu kedatangan
+      hadirList.sort(function(a, b) {
+        return (a.timestamp || '').localeCompare(b.timestamp || '');
+      });
+
+      var now = new Date();
+      var tglFormal = now.toLocaleDateString('id-ID', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
       });
+      var jamCetak = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-      // Blok stats
-      var blokMap = {};
-      allWarga.forEach(function(w) {
-        var prefix = getBlokPrefix(w.blok);
-        if (!blokMap[prefix]) blokMap[prefix] = { total: 0, hadir: 0 };
-        blokMap[prefix].total++;
-        if (w.hadir) blokMap[prefix].hadir++;
-      });
-
-      var blokKeys = Object.keys(blokMap).sort(function(a, b) {
-        return a.localeCompare(b, undefined, { numeric: true });
-      });
-
-      // Build HTML for PDF
       var html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
         '<style>' +
-        'body{font-family:Arial,Helvetica,sans-serif;color:#1e293b;padding:32px 40px;font-size:11px;line-height:1.5;}' +
-        'h1{font-size:16px;text-align:center;margin:0 0 2px;}' +
-        'h2{font-size:13px;margin:18px 0 8px;padding-bottom:4px;border-bottom:2px solid #166534;color:#166534;}' +
-        '.subtitle{text-align:center;color:#64748b;font-size:11px;margin-bottom:16px;}' +
-        'table{width:100%;border-collapse:collapse;margin-bottom:12px;}' +
-        'th{background:#166534;color:white;padding:6px 8px;text-align:left;font-size:10px;}' +
-        'td{padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;}' +
-        'tr:nth-child(even) td{background:#f8fafc;}' +
-        '.ring{display:flex;gap:16px;justify-content:center;margin:12px 0 16px;}' +
-        '.ring-item{text-align:center;padding:10px 20px;border-radius:10px;min-width:100px;}' +
-        '.ring-item .num{font-size:22px;font-weight:800;line-height:1;}' +
-        '.ring-item .lbl{font-size:9px;color:#64748b;font-weight:600;text-transform:uppercase;margin-top:4px;}' +
-        '.bg-blue{background:#dbeafe;}.bg-blue .num{color:#1e40af;}' +
-        '.bg-green{background:#dcfce7;}.bg-green .num{color:#16a34a;}' +
-        '.bg-red{background:#fee2e2;}.bg-red .num{color:#dc2626;}' +
-        '.bg-persen{background:#f0fdf4;border:2px solid #22c55e;}.bg-persen .num{color:#166534;}' +
-        '.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;}' +
-        '.badge-hadir{background:#dcfce7;color:#16a34a;}' +
-        '.badge-belum{background:#fee2e2;color:#dc2626;}' +
-        '.footer-note{text-align:center;color:#94a3b8;font-size:9px;margin-top:20px;padding-top:10px;border-top:1px solid #e2e8f0;}' +
-        '@media print{body{padding:20px;}@page{margin:15mm;size:A4;}}' +
+        'body{font-family:"Times New Roman",Times,serif;color:#000;padding:30px 50px;font-size:12px;line-height:1.6;}' +
+        '.kop{text-align:center;border-bottom:3px double #000;padding-bottom:12px;margin-bottom:20px;}' +
+        '.kop h1{font-size:15px;font-weight:bold;margin:0;letter-spacing:1px;}' +
+        '.kop h2{font-size:13px;font-weight:bold;margin:2px 0;}' +
+        '.kop .alamat{font-size:10px;margin:2px 0;color:#333;}' +
+        '.judul{text-align:center;margin:16px 0;font-size:16px;font-weight:bold;text-decoration:underline;letter-spacing:2px;}' +
+        '.info-table{margin:0 0 16px;font-size:12px;}' +
+        '.info-table td{padding:2px 0;vertical-align:top;}' +
+        '.info-table td:first-child{width:120px;font-weight:bold;}' +
+        '.info-table td:nth-child(2){width:14px;text-align:center;}' +
+        'table.daftar{width:100%;border-collapse:collapse;margin:12px 0;}' +
+        'table.daftar th,table.daftar td{border:1px solid #000;padding:6px 10px;font-size:11px;}' +
+        'table.daftar th{background:#f0f0f0;font-weight:bold;text-align:center;}' +
+        'table.daftar td.no{text-align:center;width:36px;}' +
+        'table.daftar td.blok{text-align:center;width:80px;}' +
+        'table.daftar td.waktu{text-align:center;width:90px;font-size:10px;color:#444;}' +
+        '.ringkasan{margin:16px 0;padding:12px 16px;border:1px solid #000;font-size:12px;}' +
+        '.ringkasan td{padding:3px 0;}' +
+        '.ringkasan td:first-child{width:180px;}' +
+        '.ringkasan td:nth-child(2){width:14px;text-align:center;}' +
+        '.ringkasan td:last-child{font-weight:bold;}' +
+        '.ttd-area{margin-top:40px;display:flex;justify-content:space-between;}' +
+        '.ttd-box{text-align:center;width:200px;}' +
+        '.ttd-box .line{margin-top:60px;border-top:1px solid #000;padding-top:4px;}' +
+        '.footer-note{text-align:center;color:#999;font-size:9px;margin-top:30px;border-top:1px solid #ccc;padding-top:8px;}' +
+        '@media print{body{padding:20px 40px;}@page{margin:15mm;size:A4;}}' +
         '</style></head><body>';
 
-      // Header
-      html += '<h1>LAPORAN DAFTAR HADIR PENCOBLOSAN</h1>';
-      html += '<div class="subtitle">RT 29 &mdash; ' + tgl + '</div>';
-
-      // Ringkasan
-      html += '<div class="ring">';
-      html += '<div class="ring-item bg-blue"><div class="num">' + totalKK + '</div><div class="lbl">Total KK</div></div>';
-      html += '<div class="ring-item bg-green"><div class="num">' + hadirList.length + '</div><div class="lbl">Hadir</div></div>';
-      html += '<div class="ring-item bg-red"><div class="num">' + belumList.length + '</div><div class="lbl">Belum</div></div>';
-      html += '<div class="ring-item bg-persen"><div class="num">' + persen + '%</div><div class="lbl">Kehadiran</div></div>';
+      // Kop surat
+      html += '<div class="kop">';
+      html += '<h1>PERMATA GREEN MENGANTI REGENCY</h1>';
+      html += '<h2>RT. 29 RW. 10</h2>';
+      html += '<div class="alamat">Desa Drancang - Kecamatan Menganti</div>';
+      html += '<div class="alamat">Kabupaten Gresik - Jawa Timur</div>';
+      html += '<div class="alamat">Kode Pos 61174</div>';
       html += '</div>';
 
-      // Tabel per blok
-      html += '<h2>Rekap Per Blok</h2>';
-      html += '<table><tr><th>Blok</th><th>Total</th><th>Hadir</th><th>Belum</th><th>Persen</th></tr>';
-      blokKeys.forEach(function(blok) {
-        var d = blokMap[blok];
-        var p = Math.round(d.hadir / d.total * 100);
-        html += '<tr><td><strong>' + blok + '</strong></td><td>' + d.total +
-          '</td><td>' + d.hadir + '</td><td>' + (d.total - d.hadir) +
-          '</td><td>' + p + '%</td></tr>';
-      });
+      // Judul
+      html += '<div class="judul">DAFTAR HADIR</div>';
+
+      // Info acara
+      html += '<table class="info-table">';
+      html += '<tr><td>Hari / Tanggal</td><td>:</td><td>' + tglFormal + '</td></tr>';
+      html += '<tr><td>Waktu</td><td>:</td><td>19:00 – selesai</td></tr>';
+      html += '<tr><td>Agenda</td><td>:</td><td>Pemilihan Ketua RT 29 RW 10</td></tr>';
+      html += '<tr><td>Tempat</td><td>:</td><td>Pos Tanah Lot</td></tr>';
       html += '</table>';
 
-      // Daftar hadir saja
-      html += '<h2>Daftar Warga Hadir (' + hadirList.length + ' KK)</h2>';
-      html += '<table><tr><th>No</th><th>Blok</th><th>Nama</th><th>Waktu</th></tr>';
+      // Tabel daftar hadir (urut waktu kedatangan)
+      html += '<table class="daftar">';
+      html += '<tr><th>No</th><th>Nama</th><th>Blok</th><th>Waktu Hadir</th></tr>';
       hadirList.forEach(function(w, i) {
-        html += '<tr><td>' + (i + 1) + '</td><td>' + esc(w.blok) +
-          '</td><td>' + esc(w.nama) + '</td><td>' + (w.timestamp || '-') + '</td></tr>';
+        html += '<tr>';
+        html += '<td class="no">' + (i + 1) + '</td>';
+        html += '<td>' + esc(w.nama) + '</td>';
+        html += '<td class="blok">' + esc(w.blok) + '</td>';
+        html += '<td class="waktu">' + (w.timestamp || '-') + '</td>';
+        html += '</tr>';
       });
       html += '</table>';
 
-      html += '<div class="footer-note">Dicetak pada ' + tgl +
-        ' pukul ' + new Date().toLocaleTimeString('id-ID') +
-        ' &mdash; Sistem Absensi RT 29</div>';
+      // Ringkasan
+      html += '<table class="ringkasan">';
+      html += '<tr><td>Total Warga Terdaftar</td><td>:</td><td>' + totalKK + ' KK</td></tr>';
+      html += '<tr><td>Hadir</td><td>:</td><td>' + hadirList.length + ' KK</td></tr>';
+      html += '<tr><td>Tidak Hadir</td><td>:</td><td>' + belumList.length + ' KK</td></tr>';
+      html += '<tr><td>Persentase Kehadiran</td><td>:</td><td>' + persen + '%</td></tr>';
+      html += '</table>';
+
+      // Area tanda tangan
+      html += '<div class="ttd-area">';
+      html += '<div class="ttd-box">Mengetahui,<div class="line">Ketua Panitia</div></div>';
+      html += '<div class="ttd-box">Gresik, ' + now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + '<div class="line">Petugas Absensi</div></div>';
+      html += '</div>';
+
+      html += '<div class="footer-note">Dicetak dari Sistem Absensi RT 29 &mdash; ' + tglFormal + ' pukul ' + jamCetak + '</div>';
       html += '</body></html>';
 
-      // Buka di tab baru → print as PDF
       var win = window.open('', '_blank');
       win.document.write(html);
       win.document.close();
