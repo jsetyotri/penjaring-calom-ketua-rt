@@ -1210,7 +1210,7 @@
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       var infoRows = [
-        ['Hari / Tanggal', 'Sabtu, 31 Oktober 2026'],
+        ['Hari / Tanggal', tgl],
         ['Waktu', '19:00 – selesai'],
         ['Agenda', 'Pemilihan Ketua RT 29 RW 10'],
         ['Tempat', 'Pos Tanah Lot']
@@ -1234,10 +1234,11 @@
         return (a.waktuCoblos || '').localeCompare(b.waktuCoblos || '');
       });
 
-      var tableHead = [['No', 'Nama', 'Blok', 'Sumber', 'Waktu Hadir', 'Waktu Coblos']];
+      var tableHead = [['No', 'Nama Hadir', 'Blok', 'Sumber', 'Waktu Hadir', 'Waktu Coblos']];
       var tableBody = coblosList.map(function(w, i) {
         var sumber = w.sumber ? (w.sumber === 'Mandiri' ? 'QR Mandiri' : 'Via Petugas') : '-';
-        return [i + 1, w.nama, w.blok, sumber, w.waktuHadir || '-', w.waktuCoblos || '-'];
+        var namaUtama = w.namaHadir || w.nama;
+        return [i + 1, namaUtama, w.blok, sumber, w.waktuHadir || '-', w.waktuCoblos || '-'];
       });
 
       doc.autoTable({
