@@ -474,6 +474,7 @@
     <div class="header">
       <h1>Dashboard Petugas Pencoblosan</h1>
       <p>RT 29 RW 10 &mdash; Permata Green Menganti Regency</p>
+      <span id="roleBadge" style="display:none;margin-top:8px;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;"></span>
     </div>
 
     <!-- ══ LOGIN ══ -->
@@ -534,7 +535,7 @@
       </div>
 
       <!-- Tambah Warga -->
-      <div class="add-panel">
+      <div class="add-panel" id="addPanel">
         <div class="add-toggle">
           <span>+ Tambah Warga Baru</span>
           <button class="toggle-btn" id="toggleAddBtn" onclick="toggleAddForm()">Buka</button>
@@ -587,6 +588,9 @@
     var currentFilter = 'all';
     var currentSearch = '';
     var openBloks = {};
+    var userRole = sessionStorage.getItem('petugas_role') || '';
+
+    function isPetugas() { return userRole === 'petugas'; }
 
     function api(action, params) {
       var url = API_URL + '?action=' + action;
@@ -617,7 +621,9 @@
             msg.textContent = res.message;
             return;
           }
+          userRole = res.role || 'formatur';
           sessionStorage.setItem('petugas_login', '1');
+          sessionStorage.setItem('petugas_role', userRole);
           showDashboard();
         })
         .catch(function() {
@@ -630,6 +636,8 @@
 
     function doLogout() {
       sessionStorage.removeItem('petugas_login');
+      sessionStorage.removeItem('petugas_role');
+      userRole = '';
       document.getElementById('dashboardSection').style.display = 'none';
       document.getElementById('loginSection').style.display = 'block';
       document.getElementById('pinInput').value = '';
@@ -638,11 +646,27 @@
     function showDashboard() {
       document.getElementById('loginSection').style.display = 'none';
       document.getElementById('dashboardSection').style.display = 'block';
+
+      // Show role badge
+      var badge = document.getElementById('roleBadge');
+      if (isPetugas()) {
+        badge.textContent = 'Petugas (Full Akses)';
+        badge.style.background = '#dcfce7'; badge.style.color = '#16a34a';
+      } else {
+        badge.textContent = 'Formatur (Hanya Lihat)';
+        badge.style.background = '#fef9c3'; badge.style.color = '#a16207';
+      }
+      badge.style.display = 'inline-block';
+
+      // Hide tambah warga for formatur
+      document.getElementById('addPanel').style.display = isPetugas() ? 'block' : 'none';
+
       loadData();
     }
 
     // Auto-login jika session masih ada
     if (sessionStorage.getItem('petugas_login') === '1') {
+      userRole = sessionStorage.getItem('petugas_role') || '';
       showDashboard();
     }
 
@@ -788,30 +812,30 @@
             badge.textContent = 'Belum';
           }
 
-          // Action button
-          var btn = document.createElement('button');
-          btn.className = 'btn-action';
-
-          if (w.coblos) {
-            // Sudah coblos → batal coblos
-            btn.className += ' batal';
-            btn.textContent = 'Batal';
-            btn.onclick = function() { doCoblosAction(w.blok, 'absen_undo_coblos', btn); };
-          } else if (w.hadir) {
-            // Hadir tapi belum coblos → tandai coblos
-            btn.className += ' coblos';
-            btn.textContent = 'Coblos';
-            btn.onclick = function() { doCoblosAction(w.blok, 'absen_coblos', btn); };
-          } else {
-            // Belum hadir → tandai hadir manual
-            btn.className += ' hadir';
-            btn.textContent = 'Hadir';
-            btn.onclick = function() { doHadirAction(w.blok, btn); };
-          }
-
           row.appendChild(info);
           row.appendChild(badge);
-          row.appendChild(btn);
+
+          // Action button — hanya untuk petugas
+          if (isPetugas()) {
+            var btn = document.createElement('button');
+            btn.className = 'btn-action';
+
+            if (w.coblos) {
+              btn.className += ' batal';
+              btn.textContent = 'Batal';
+              btn.onclick = function() { doCoblosAction(w.blok, 'absen_undo_coblos', btn); };
+            } else if (w.hadir) {
+              btn.className += ' coblos';
+              btn.textContent = 'Coblos';
+              btn.onclick = function() { doCoblosAction(w.blok, 'absen_coblos', btn); };
+            } else {
+              btn.className += ' hadir';
+              btn.textContent = 'Hadir';
+              btn.onclick = function() { doHadirAction(w.blok, btn); };
+            }
+            row.appendChild(btn);
+          }
+
           body.appendChild(row);
         });
 
