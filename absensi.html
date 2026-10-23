@@ -871,6 +871,19 @@
     }
 
     // Render grouped by blok (default mode)
+    // Hitung total per blok dari SEMUA warga (bukan hasil filter)
+    function getBlokTotals() {
+      var totals = {};
+      allWarga.forEach(function(w) {
+        var prefix = getBlokPrefix(w.blok);
+        if (!totals[prefix]) totals[prefix] = { total: 0, hadir: 0, coblos: 0 };
+        totals[prefix].total++;
+        if (w.hadir) totals[prefix].hadir++;
+        if (w.coblos) totals[prefix].coblos++;
+      });
+      return totals;
+    }
+
     function renderBlokList(container, filtered) {
       var groups = {};
       filtered.forEach(function(w) {
@@ -878,6 +891,8 @@
         if (!groups[prefix]) groups[prefix] = [];
         groups[prefix].push(w);
       });
+
+      var blokTotals = getBlokTotals();
 
       var keys = Object.keys(groups).sort(function(a, b) {
         return a.localeCompare(b, undefined, { numeric: true });
@@ -888,17 +903,16 @@
         section.className = 'blok-section';
 
         var list = groups[prefix];
-        var coblCount = list.filter(function(w) { return w.coblos; }).length;
-        var hadirCount = list.filter(function(w) { return w.hadir; }).length;
-        var badgeClass = coblCount === list.length ? 'complete'
-          : (hadirCount > 0 ? 'partial' : 'empty');
+        var bt = blokTotals[prefix] || { total: list.length, hadir: 0, coblos: 0 };
+        var badgeClass = bt.coblos === bt.total ? 'complete'
+          : (bt.hadir > 0 ? 'partial' : 'empty');
 
         var header = document.createElement('div');
         header.className = 'blok-header';
         header.innerHTML =
           '<span class="blok-title">Blok ' + esc(prefix) + '</span>' +
           '<span class="blok-badge ' + badgeClass + '">' +
-          coblCount + '/' + list.length + ' coblos</span>';
+          bt.coblos + '/' + bt.total + ' coblos</span>';
 
         var body = document.createElement('div');
         body.className = 'blok-body';
