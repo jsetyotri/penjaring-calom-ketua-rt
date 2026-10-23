@@ -363,6 +363,7 @@
     var allWarga = [];
     var currentFilter = 'all';
     var currentSearch = '';
+    var openBloks = {};  // ingat blok mana yang sedang dibuka
 
     function api(action, params) {
       var url = API_URL + '?action=' + action;
@@ -469,9 +470,17 @@
         var body = document.createElement('div');
         body.className = 'blok-body';
 
-        if (search || currentFilter !== 'all') body.classList.add('open');
+        // Buka kalau sedang search/filter, atau kalau sebelumnya sudah dibuka
+        if (search || currentFilter !== 'all' || openBloks[prefix]) {
+          body.classList.add('open');
+        }
 
-        header.onclick = function() { body.classList.toggle('open'); };
+        header.onclick = (function(p, b) {
+          return function() {
+            b.classList.toggle('open');
+            openBloks[p] = b.classList.contains('open');
+          };
+        })(prefix, body);
 
         list.forEach(function(w) {
           var row = document.createElement('div');
@@ -507,22 +516,52 @@
       btn.disabled = true;
       btn.textContent = '...';
 
+      // Optimistic update: langsung ubah tampilan row
+      var row = btn.parentElement;
+      if (!isHadir) {
+        row.classList.add('hadir');
+        btn.className = 'btn-hadir undo';
+        btn.textContent = 'Batal';
+      } else {
+        row.classList.remove('hadir');
+        btn.className = 'btn-hadir mark';
+        btn.textContent = 'Hadir';
+      }
+      btn.disabled = false;
+
       var action = isHadir ? 'absen_undo' : 'absen_checkin';
 
       api(action, { blok: blok })
         .then(function(res) {
           if (!res.success) {
             alert(res.message);
-            btn.disabled = false;
-            btn.textContent = isHadir ? 'Batal' : 'Hadir';
+            // Rollback
+            if (!isHadir) {
+              row.classList.remove('hadir');
+              btn.className = 'btn-hadir mark';
+              btn.textContent = 'Hadir';
+            } else {
+              row.classList.add('hadir');
+              btn.className = 'btn-hadir undo';
+              btn.textContent = 'Batal';
+            }
             return;
           }
+          // Refresh data di background tanpa menutup blok
           loadData();
         })
         .catch(function() {
           alert('Gagal menghubungi server.');
-          btn.disabled = false;
-          btn.textContent = isHadir ? 'Batal' : 'Hadir';
+          // Rollback
+          if (!isHadir) {
+            row.classList.remove('hadir');
+            btn.className = 'btn-hadir mark';
+            btn.textContent = 'Hadir';
+          } else {
+            row.classList.add('hadir');
+            btn.className = 'btn-hadir undo';
+            btn.textContent = 'Batal';
+          }
         });
     }
 
