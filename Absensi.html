@@ -272,16 +272,25 @@
       color: #94a3b8;
     }
 
-    .dot {
-      display: inline-block; width: 6px; height: 6px;
-      background: #22c55e; border-radius: 50%;
-      margin-right: 4px; vertical-align: middle;
-      animation: pulse 2s infinite;
+    .loading { text-align: center; padding: 40px; color: #94a3b8; }
+
+    .refresh-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 10px 24px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: #166534;
+      background: #dcfce7;
+      border: 2px solid #bbf7d0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
-
-    .loading { text-align: center; padding: 40px; color: #94a3b8; }
+    .refresh-btn:active { background: #bbf7d0; transform: scale(0.96); }
+    .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 
@@ -342,7 +351,7 @@
 
     <div class="footer">
       <div id="updatedAt"></div>
-      <div><span class="dot"></span> Auto-refresh tiap 15 detik</div>
+      <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
     </div>
   </div>
 
@@ -535,7 +544,8 @@
     // ── Helpers ──
     function getBlokPrefix(blok) {
       var match = blok.match(/^([A-Za-z]+)-?(\d+)/);
-      return match ? (match[1] + match[2]).toUpperCase() : 'LAIN';
+      if (match) return (match[1] + match[2]).toUpperCase();
+      return blok.trim().toUpperCase() || '?';
     }
 
     function esc(s) {
@@ -544,9 +554,20 @@
       return d.innerHTML;
     }
 
+    // ── Manual refresh ──
+    function refreshData() {
+      var btn = document.querySelector('.refresh-btn');
+      btn.disabled = true;
+      btn.textContent = 'Memuat...';
+      loadData();
+      setTimeout(function() {
+        btn.disabled = false;
+        btn.textContent = '🔄 Refresh Data';
+      }, 1500);
+    }
+
     // ── Init ──
     loadData();
-    setInterval(loadData, 15000);
   </script>
 </body>
 </html>
