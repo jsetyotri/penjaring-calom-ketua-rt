@@ -308,6 +308,19 @@
     }
 
     .warga-row:last-child { border-bottom: none; }
+
+    .queue-num {
+      width: 32px; height: 32px;
+      background: #e2e8f0;
+      color: #475569;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
     .warga-row.row-hadir { background: #fffbeb; }
     .warga-row.row-coblos { background: #f0fdf4; }
 
@@ -722,20 +735,133 @@
       var container = document.getElementById('wargaList');
       container.innerHTML = '';
 
-      var groups = {};
       var search = currentSearch.toLowerCase();
 
-      allWarga.forEach(function(w) {
-        // Filter
-        if (currentFilter === 'belum' && w.hadir) return;
-        if (currentFilter === 'hadir' && (!w.hadir || w.coblos)) return;
-        if (currentFilter === 'coblos' && !w.coblos) return;
-
+      // Filter warga
+      var filtered = allWarga.filter(function(w) {
+        if (currentFilter === 'belum' && w.hadir) return false;
+        if (currentFilter === 'hadir' && (!w.hadir || w.coblos)) return false;
+        if (currentFilter === 'coblos' && !w.coblos) return false;
         if (search) {
           var hay = (w.blok + ' ' + w.nama).toLowerCase();
-          if (hay.indexOf(search) < 0) return;
+          if (hay.indexOf(search) < 0) return false;
+        }
+        return true;
+      });
+
+      if (!filtered.length) {
+        container.innerHTML = '<div class="loading">Tidak ada data ditemukan.</div>';
+        return;
+      }
+
+      // ── Mode ANTRIAN: tab Hadir → flat list urut waktu hadir ──
+      if (currentFilter === 'hadir') {
+        renderQueueList(container, filtered);
+        return;
+      }
+
+      // ── Mode BLOK: tab lainnya → grup per blok ──
+      renderBlokList(container, filtered);
+    }
+
+    // Render flat queue list sorted by waktu hadir
+    function renderQueueList(container, list) {
+      // Sort by waktu hadir ascending
+      list.sort(function(a, b) {
+        return (a.waktuHadir || '').localeCompare(b.waktuHadir || '');
+      });
+
+      // Find first belum-coblos index for "next" highlight
+      var nextIdx = -1;
+      for (var i = 0; i < list.length; i++) {
+        if (!list[i].coblos) { nextIdx = i; break; }
+      }
+
+      var section = document.createElement('div');
+      section.className = 'blok-section';
+
+      var header = document.createElement('div');
+      header.className = 'blok-header';
+      header.style.cursor = 'default';
+      var belumCoblos = list.filter(function(w) { return !w.coblos; }).length;
+      var sudahCoblos = list.filter(function(w) { return w.coblos; }).length;
+      header.innerHTML =
+        '<span class="blok-title">Antrian Hadir (' + list.length + ' warga)</span>' +
+        '<span class="blok-badge partial">' + sudahCoblos + ' coblos &middot; ' + belumCoblos + ' menunggu</span>';
+
+      var body = document.createElement('div');
+      body.className = 'blok-body open';
+
+      list.forEach(function(w, idx) {
+        var isNext = (idx === nextIdx);
+        var row = document.createElement('div');
+        row.className = 'warga-row' + (w.coblos ? ' row-coblos' : ' row-hadir');
+        if (isNext) row.style.background = '#fef3c7';
+        if (isNext) row.style.borderLeft = '4px solid #f59e0b';
+
+        // Nomor urut
+        var numEl = document.createElement('div');
+        numEl.className = 'queue-num';
+        numEl.textContent = idx + 1;
+        if (isNext) numEl.style.background = '#f59e0b';
+        if (isNext) numEl.style.color = 'white';
+
+        // Info
+        var info = document.createElement('div');
+        info.className = 'warga-info';
+        var infoHTML = '<div class="warga-blok">' + esc(w.blok) + '</div>';
+        if (w.nama) infoHTML += '<div class="warga-nama">' + esc(w.nama) + '</div>';
+        if (w.waktuHadir) infoHTML += '<div class="warga-time">Hadir ' + esc(w.waktuHadir) + '</div>';
+        if (w.coblos && w.waktuCoblos) infoHTML += '<div class="warga-time coblos-time">Coblos ' + esc(w.waktuCoblos) + '</div>';
+        info.innerHTML = infoHTML;
+
+        // Status badge
+        var badge = document.createElement('span');
+        if (w.coblos) {
+          badge.className = 'status-badge coblos';
+          badge.textContent = 'Selesai';
+        } else if (isNext) {
+          badge.className = 'status-badge';
+          badge.style.background = '#fef3c7'; badge.style.color = '#b45309';
+          badge.style.fontWeight = '800';
+          badge.textContent = '▶ Panggil';
+        } else {
+          badge.className = 'status-badge hadir';
+          badge.textContent = 'Menunggu';
         }
 
+        row.appendChild(numEl);
+        row.appendChild(info);
+        row.appendChild(badge);
+
+        // Action button — petugas only
+        if (isPetugas()) {
+          var btn = document.createElement('button');
+          btn.className = 'btn-action';
+          if (w.coblos) {
+            btn.className += ' batal';
+            btn.textContent = 'Batal';
+            btn.onclick = function() { doCoblosAction(w.blok, 'absen_undo_coblos', btn); };
+          } else {
+            btn.className += ' coblos';
+            btn.textContent = 'Coblos';
+            btn.onclick = function() { doCoblosAction(w.blok, 'absen_coblos', btn); };
+          }
+          row.appendChild(btn);
+        }
+
+        body.appendChild(row);
+      });
+
+      section.appendChild(header);
+      section.appendChild(body);
+      container.appendChild(section);
+    }
+
+    // Render grouped by blok (default mode)
+    function renderBlokList(container, filtered) {
+      var groups = {};
+      filtered.forEach(function(w) {
         var prefix = getBlokPrefix(w.blok);
         if (!groups[prefix]) groups[prefix] = [];
         groups[prefix].push(w);
@@ -744,11 +870,6 @@
       var keys = Object.keys(groups).sort(function(a, b) {
         return a.localeCompare(b, undefined, { numeric: true });
       });
-
-      if (!keys.length) {
-        container.innerHTML = '<div class="loading">Tidak ada data ditemukan.</div>';
-        return;
-      }
 
       keys.forEach(function(prefix) {
         var section = document.createElement('div');
@@ -770,7 +891,7 @@
         var body = document.createElement('div');
         body.className = 'blok-body';
 
-        if (search || currentFilter !== 'all' || openBloks[prefix]) {
+        if (currentSearch || currentFilter !== 'all' || openBloks[prefix]) {
           body.classList.add('open');
         }
 
