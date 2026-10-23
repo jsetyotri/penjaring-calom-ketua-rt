@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Hadir Pencoblosan RT 29</title>
+  <title>Dashboard Petugas - Pencoblosan RT 29</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -17,7 +17,7 @@
       min-height: 100dvh;
     }
 
-    .container { max-width: 540px; margin: 0 auto; width: 100%; }
+    .container { max-width: 560px; margin: 0 auto; width: 100%; }
 
     .header {
       background: linear-gradient(135deg, #166534, #22c55e);
@@ -28,115 +28,200 @@
       text-align: center;
     }
 
-    .header h1 { font-size: 1.25rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
-    .header p { font-size: 0.85rem; opacity: 0.9; }
+    .header h1 { font-size: 1.2rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .header p { font-size: 0.82rem; opacity: 0.9; }
+
+    /* ── Login ── */
+    .login-card {
+      background: white;
+      padding: 32px 24px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      text-align: center;
+      max-width: 360px;
+      margin: 40px auto;
+    }
+
+    .login-card h2 { font-size: 1.1rem; margin-bottom: 6px; color: #166534; }
+    .login-card p { font-size: 0.85rem; color: #64748b; margin-bottom: 20px; }
+
+    .login-card .pin-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #334155;
+      text-align: left;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .pin-input {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      font-size: 1.2rem;
+      font-family: inherit;
+      text-align: center;
+      letter-spacing: 8px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      outline: none;
+      background: #f8fafc;
+      -webkit-appearance: none;
+    }
+
+    .pin-input:focus { border-color: #22c55e; background: white; }
+
+    .login-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      margin-top: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      color: white;
+      background: #166534;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .login-btn:disabled { background: #94a3b8; }
+    .login-btn:not(:disabled):active { background: #14532d; }
+
+    .login-msg {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    .login-msg.error { display: block; background: #fef2f2; color: #dc2626; }
 
     /* ── Stats ── */
     .stats {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
     }
 
     .stat {
       background: white;
-      padding: 14px 8px;
-      border-radius: 12px;
+      padding: 12px 6px;
+      border-radius: 10px;
       text-align: center;
       box-shadow: 0 1px 6px rgba(0,0,0,0.06);
     }
 
     .stat-num {
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       font-weight: 800;
       line-height: 1;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
-    .stat-num.green { color: #16a34a; }
-    .stat-num.red { color: #dc2626; }
     .stat-num.blue { color: #1e40af; }
+    .stat-num.green { color: #16a34a; }
+    .stat-num.orange { color: #ea580c; }
+    .stat-num.red { color: #dc2626; }
 
     .stat-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: #64748b;
       font-weight: 600;
       text-transform: uppercase;
     }
 
-    .persen-bar {
+    /* ── Progress bars ── */
+    .progress-panel {
       background: white;
       border-radius: 12px;
       padding: 14px 16px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.06);
     }
 
-    .persen-header {
+    .progress-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 10px;
       margin-bottom: 8px;
     }
 
-    .persen-header span { font-size: 0.85rem; font-weight: 600; color: #334155; }
+    .progress-row:last-child { margin-bottom: 0; }
 
-    .persen-header strong {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #16a34a;
+    .progress-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+      width: 70px;
+      flex-shrink: 0;
     }
 
-    .bar-track {
-      height: 12px;
+    .progress-track {
+      flex: 1;
+      height: 10px;
       background: #e2e8f0;
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
     }
 
-    .bar-fill {
+    .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #22c55e, #16a34a);
-      border-radius: 12px;
-      transition: width 0.5s ease;
+      border-radius: 10px;
+      transition: width 0.5s;
       min-width: 2px;
     }
 
-    /* ── Search & filter ── */
+    .progress-fill.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .progress-fill.orange { background: linear-gradient(90deg, #fb923c, #ea580c); }
+
+    .progress-pct {
+      font-size: 0.85rem;
+      font-weight: 800;
+      width: 42px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .progress-pct.green { color: #16a34a; }
+    .progress-pct.orange { color: #ea580c; }
+
+    /* ── Controls ── */
     .controls {
       background: white;
-      padding: 14px;
+      padding: 12px;
       border-radius: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.06);
     }
 
     .search-box {
       display: block;
       width: 100%;
-      padding: 12px 14px;
-      font-size: 0.95rem;
+      padding: 11px 14px;
+      font-size: 0.92rem;
       font-family: inherit;
       border: 2px solid #e2e8f0;
       border-radius: 10px;
       outline: none;
       background: #f8fafc;
-      transition: border-color 0.2s;
     }
 
     .search-box:focus { border-color: #22c55e; background: white; }
 
-    .filters {
+    .tab-row {
       display: flex;
-      gap: 6px;
-      margin-top: 10px;
+      gap: 4px;
+      margin-top: 8px;
     }
 
-    .filter-btn {
+    .tab-btn {
       flex: 1;
-      padding: 8px 4px;
-      font-size: 0.8rem;
+      padding: 7px 4px;
+      font-size: 0.75rem;
       font-weight: 600;
       font-family: inherit;
       border: 2px solid #e2e8f0;
@@ -145,49 +230,42 @@
       color: #64748b;
       cursor: pointer;
       text-align: center;
-      transition: all 0.2s;
     }
 
-    .filter-btn.active {
+    .tab-btn.active {
       border-color: #22c55e;
       background: #f0fdf4;
       color: #16a34a;
     }
 
-    /* ── Blok summary chips ── */
-    .blok-summary {
+    /* ── Blok chips ── */
+    .chip-panel {
       background: white;
       border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.06);
     }
 
-    .blok-summary h2 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: #334155;
-    }
+    .chip-panel h2 { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; color: #334155; }
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 
-    .blok-chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .blok-chip {
-      padding: 6px 12px;
+    .chip {
+      padding: 5px 10px;
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
     }
 
-    .blok-chip.ok { background: #dcfce7; color: #16a34a; }
-    .blok-chip.warn { background: #fef9c3; color: #a16207; }
-    .blok-chip.bad { background: #fee2e2; color: #dc2626; }
+    .chip.ok { background: #dcfce7; color: #16a34a; }
+    .chip.warn { background: #fef9c3; color: #a16207; }
+    .chip.bad { background: #fee2e2; color: #dc2626; }
 
-    /* ── Blok section ── */
+    /* ── Warga list ── */
     .blok-section {
       background: white;
       border-radius: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.06);
       overflow: hidden;
     }
@@ -196,7 +274,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 14px;
+      padding: 11px 14px;
       background: #f8fafc;
       border-bottom: 1px solid #f1f5f9;
       cursor: pointer;
@@ -204,10 +282,10 @@
     }
 
     .blok-header:active { background: #f1f5f9; }
-    .blok-title { font-size: 0.9rem; font-weight: 700; color: #334155; }
+    .blok-title { font-size: 0.88rem; font-weight: 700; color: #334155; }
 
     .blok-badge {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
       padding: 3px 10px;
       border-radius: 20px;
@@ -226,45 +304,114 @@
       align-items: center;
       padding: 10px 14px;
       border-bottom: 1px solid #f8fafc;
-      gap: 10px;
-      transition: background 0.15s;
+      gap: 8px;
     }
 
     .warga-row:last-child { border-bottom: none; }
-    .warga-row.hadir { background: #f0fdf4; }
+    .warga-row.row-hadir { background: #fffbeb; }
+    .warga-row.row-coblos { background: #f0fdf4; }
 
     .warga-info { flex: 1; min-width: 0; }
-    .warga-blok { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+    .warga-blok { font-size: 0.88rem; font-weight: 700; color: #1e293b; }
 
     .warga-nama {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #64748b;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .warga-time { font-size: 0.7rem; color: #16a34a; margin-top: 2px; }
+    .warga-time { font-size: 0.68rem; color: #16a34a; margin-top: 1px; }
+    .warga-time.coblos-time { color: #ea580c; }
 
-    .btn-hadir {
-      padding: 8px 14px;
-      font-size: 0.8rem;
+    .status-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .status-badge.belum { background: #f1f5f9; color: #94a3b8; }
+    .status-badge.hadir { background: #fef9c3; color: #a16207; }
+    .status-badge.coblos { background: #dcfce7; color: #16a34a; }
+
+    .btn-action {
+      padding: 7px 12px;
+      font-size: 0.75rem;
       font-weight: 700;
       font-family: inherit;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.15s;
       flex-shrink: 0;
     }
 
-    .btn-hadir.mark { background: #22c55e; color: white; }
-    .btn-hadir.mark:active { background: #16a34a; transform: scale(0.96); }
-    .btn-hadir.undo { background: #fee2e2; color: #dc2626; font-weight: 600; }
-    .btn-hadir.undo:active { background: #fecaca; }
-    .btn-hadir:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-action.hadir { background: #22c55e; color: white; }
+    .btn-action.hadir:active { background: #16a34a; }
+    .btn-action.coblos { background: #f97316; color: white; }
+    .btn-action.coblos:active { background: #ea580c; }
+    .btn-action.batal { background: #fee2e2; color: #dc2626; font-size: 0.7rem; }
+    .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* ── Tambah Warga ── */
+    .add-panel {
+      background: white;
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+
+    .add-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .add-toggle span { font-size: 0.88rem; font-weight: 700; color: #334155; }
+
+    .toggle-btn {
+      font-size: 0.78rem;
+      font-family: inherit;
+      padding: 5px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #64748b;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .add-form { display: none; margin-top: 12px; }
+
+    .add-form .row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .add-form .row input { flex: 1; }
+
+    .add-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: inherit;
+      border: none;
+      border-radius: 8px;
+      background: #166534;
+      color: white;
+      cursor: pointer;
+    }
+
+    .add-msg {
+      display: none;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+    }
+
+    /* ── Footer ── */
     .footer {
       text-align: center;
       padding: 12px;
@@ -272,13 +419,18 @@
       color: #94a3b8;
     }
 
-    .loading { text-align: center; padding: 40px; color: #94a3b8; }
-
-    .refresh-btn {
-      display: inline-block;
+    .action-bar {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
       margin-top: 8px;
-      padding: 10px 24px;
-      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 0.85rem;
       font-weight: 600;
       font-family: inherit;
       color: #166534;
@@ -286,97 +438,142 @@
       border: 2px solid #bbf7d0;
       border-radius: 10px;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
-    .refresh-btn:active { background: #bbf7d0; transform: scale(0.96); }
-    .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .action-btn:active { background: #bbf7d0; }
+    .action-btn:disabled { opacity: 0.5; }
+
+    .loading { text-align: center; padding: 32px; color: #94a3b8; }
+
+    .logout-link {
+      font-size: 0.8rem;
+      color: #dc2626;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 
 <body>
   <div class="container">
     <div class="header">
-      <h1>Daftar Hadir Pencoblosan</h1>
-      <p>RT 29 &mdash; Petugas input kehadiran warga</p>
+      <h1>Dashboard Petugas Pencoblosan</h1>
+      <p>RT 29 RW 10 &mdash; Permata Green Menganti Regency</p>
     </div>
 
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num blue" id="sTotal">—</div>
-        <div class="stat-label">Total KK</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num green" id="sHadir">—</div>
-        <div class="stat-label">Hadir</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num red" id="sBelum">—</div>
-        <div class="stat-label">Belum</div>
-      </div>
-    </div>
-
-    <div class="persen-bar">
-      <div class="persen-header">
-        <span>Kehadiran</span>
-        <strong id="sPersen">0%</strong>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill" id="sBar" style="width:0%"></div>
+    <!-- ══ LOGIN ══ -->
+    <div id="loginSection">
+      <div class="login-card">
+        <h2>Login Petugas</h2>
+        <p>Masukkan PIN untuk mengakses dashboard</p>
+        <label class="pin-label" for="pinInput">PIN Petugas</label>
+        <input type="password" class="pin-input" id="pinInput"
+          maxlength="10" placeholder="****" autocomplete="off"
+          onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="login-btn" id="loginBtn" onclick="doLogin()">Masuk</button>
+        <div class="login-msg" id="loginMsg"></div>
       </div>
     </div>
 
-    <!-- Blok overview -->
-    <div class="blok-summary">
-      <h2>Status Per Blok</h2>
-      <div class="blok-chip-grid" id="blokChips"></div>
-    </div>
+    <!-- ══ DASHBOARD (hidden until login) ══ -->
+    <div id="dashboardSection" style="display:none;">
 
-    <!-- Tambah Warga -->
-    <div class="controls" id="addWargaPanel">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:0.9rem;font-weight:700;color:#334155;">➕ Tambah Warga Baru</span>
-        <button onclick="toggleAddForm()" id="toggleAddBtn"
-          style="font-size:0.8rem;font-family:inherit;padding:5px 12px;border:2px solid #e2e8f0;border-radius:8px;background:white;color:#64748b;cursor:pointer;font-weight:600;">
-          Buka
-        </button>
-      </div>
-      <div id="addFormBody" style="display:none;">
-        <div style="display:flex;gap:8px;margin-bottom:8px;">
-          <input type="text" id="addNama" class="search-box" placeholder="Nama warga" style="flex:1;">
-          <input type="text" id="addBlok" class="search-box" placeholder="Blok (mis: F4-20)" style="flex:0 0 120px;">
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num blue" id="sTotal">—</div>
+          <div class="stat-label">Total KK</div>
         </div>
-        <button onclick="submitAddWarga()" id="btnAddWarga"
-          style="width:100%;padding:10px;font-size:0.85rem;font-weight:700;font-family:inherit;border:none;border-radius:8px;background:#166534;color:white;cursor:pointer;transition:all 0.15s;">
-          Tambah
-        </button>
-        <div id="addMsg" style="display:none;margin-top:8px;padding:10px 12px;border-radius:8px;font-size:0.85rem;"></div>
+        <div class="stat">
+          <div class="stat-num green" id="sHadir">—</div>
+          <div class="stat-label">Hadir</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num orange" id="sCoblos">—</div>
+          <div class="stat-label">Coblos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num red" id="sBelum">—</div>
+          <div class="stat-label">Belum</div>
+        </div>
       </div>
-    </div>
 
-    <!-- Search & Filter -->
-    <div class="controls">
-      <input type="text" class="search-box" id="searchBox"
-        placeholder="Cari blok atau nama..." autocomplete="off">
-      <div class="filters">
-        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Semua</button>
-        <button class="filter-btn" data-filter="belum" onclick="setFilter('belum')">Belum Hadir</button>
-        <button class="filter-btn" data-filter="hadir" onclick="setFilter('hadir')">Sudah Hadir</button>
+      <!-- Progress -->
+      <div class="progress-panel">
+        <div class="progress-row">
+          <span class="progress-label">Hadir</span>
+          <div class="progress-track"><div class="progress-fill green" id="barHadir" style="width:0%"></div></div>
+          <span class="progress-pct green" id="pctHadir">0%</span>
+        </div>
+        <div class="progress-row">
+          <span class="progress-label">Coblos</span>
+          <div class="progress-track"><div class="progress-fill orange" id="barCoblos" style="width:0%"></div></div>
+          <span class="progress-pct orange" id="pctCoblos">0%</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Warga list -->
-    <div id="wargaList">
-      <div class="loading">Memuat data warga...</div>
-    </div>
+      <!-- Blok chips -->
+      <div class="chip-panel">
+        <h2>Status Per Blok</h2>
+        <div class="chip-grid" id="blokChips"></div>
+      </div>
 
-    <div class="footer">
-      <div id="updatedAt"></div>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap;">
-        <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
-        <button class="refresh-btn" onclick="downloadLaporan()" style="color:#1e40af;background:#dbeafe;border-color:#bfdbfe;">📥 CSV</button>
-        <button class="refresh-btn" onclick="downloadPDF()" style="color:#7c2d12;background:#fff7ed;border-color:#fed7aa;">📄 PDF</button>
+      <!-- Tambah Warga -->
+      <div class="add-panel">
+        <div class="add-toggle">
+          <span>+ Tambah Warga Baru</span>
+          <button class="toggle-btn" id="toggleAddBtn" onclick="toggleAddForm()">Buka</button>
+        </div>
+        <div class="add-form" id="addFormBody">
+          <div class="row">
+            <input type="text" class="search-box" id="addNama" placeholder="Nama warga">
+            <input type="text" class="search-box" id="addBlok" placeholder="Blok (F4-20)" style="max-width:120px;">
+          </div>
+          <button class="add-btn" id="btnAddWarga" onclick="submitAddWarga()">Tambah</button>
+          <div class="add-msg" id="addMsg"></div>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="controls">
+        <input type="text" class="search-box" id="searchBox"
+          placeholder="Cari blok atau nama..." autocomplete="off">
+        <div class="tab-row">
+          <button class="tab-btn active" data-filter="all" onclick="setFilter('all')">Semua</button>
+          <button class="tab-btn" data-filter="belum" onclick="setFilter('belum')">Belum Hadir</button>
+          <button class="tab-btn" data-filter="hadir" onclick="setFilter('hadir')">Hadir</button>
+          <button class="tab-btn" data-filter="coblos" onclick="setFilter('coblos')">Sudah Coblos</button>
+        </div>
+      </div>
+
+      <!-- Warga list -->
+      <div id="wargaList">
+        <div class="loading">Memuat data warga...</div>
+      </div>
+
+      <div class="footer">
+        <div id="updatedAt"></div>
+        <div class="action-bar">
+          <button class="action-btn" onclick="refreshData()">Refresh</button>
+          <button class="action-btn" onclick="downloadLaporan()" style="color:#1e40af;background:#dbeafe;border-color:#bfdbfe;">CSV</button>
+          <button class="action-btn" onclick="downloadPDF()" style="color:#7c2d12;background:#fff7ed;border-color:#fed7aa;">PDF</button>
+        </div>
+        <span class="logout-link" onclick="doLogout()">Logout</span>
       </div>
     </div>
   </div>
@@ -389,7 +586,7 @@
     var allWarga = [];
     var currentFilter = 'all';
     var currentSearch = '';
-    var openBloks = {};  // ingat blok mana yang sedang dibuka
+    var openBloks = {};
 
     function api(action, params) {
       var url = API_URL + '?action=' + action;
@@ -399,6 +596,56 @@
       return fetch(url).then(function(r) { return r.json(); });
     }
 
+    // ── LOGIN ──
+    function doLogin() {
+      var pin = document.getElementById('pinInput').value.trim();
+      var btn = document.getElementById('loginBtn');
+      var msg = document.getElementById('loginMsg');
+
+      if (!pin) { msg.className = 'login-msg error'; msg.textContent = 'Masukkan PIN.'; return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Masuk...';
+      msg.className = 'login-msg'; msg.textContent = '';
+
+      api('absen_login', { pin: pin })
+        .then(function(res) {
+          btn.disabled = false;
+          btn.textContent = 'Masuk';
+          if (!res.success) {
+            msg.className = 'login-msg error';
+            msg.textContent = res.message;
+            return;
+          }
+          sessionStorage.setItem('petugas_login', '1');
+          showDashboard();
+        })
+        .catch(function() {
+          btn.disabled = false;
+          btn.textContent = 'Masuk';
+          msg.className = 'login-msg error';
+          msg.textContent = 'Gagal menghubungi server.';
+        });
+    }
+
+    function doLogout() {
+      sessionStorage.removeItem('petugas_login');
+      document.getElementById('dashboardSection').style.display = 'none';
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('pinInput').value = '';
+    }
+
+    function showDashboard() {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').style.display = 'block';
+      loadData();
+    }
+
+    // Auto-login jika session masih ada
+    if (sessionStorage.getItem('petugas_login') === '1') {
+      showDashboard();
+    }
+
     // ── Load data ──
     function loadData() {
       api('absen_data')
@@ -406,12 +653,12 @@
           if (!res.success) return;
           allWarga = res.data.warga || [];
           renderStats(res.data.stats);
-          renderBlokChips(res.data.stats.blok || {});
+          renderChips(res.data.stats.blok || {});
           renderList();
         })
         .catch(function() {
           document.getElementById('wargaList').innerHTML =
-            '<div class="loading" style="color:#dc2626">Gagal memuat data. Coba refresh.</div>';
+            '<div class="loading" style="color:#dc2626">Gagal memuat. Coba refresh.</div>';
         });
     }
 
@@ -419,30 +666,30 @@
     function renderStats(s) {
       document.getElementById('sTotal').textContent = s.total;
       document.getElementById('sHadir').textContent = s.hadir;
-      document.getElementById('sBelum').textContent = s.belum;
-      document.getElementById('sPersen').textContent = s.persen + '%';
-      document.getElementById('sBar').style.width = Math.max(s.persen, 1) + '%';
+      document.getElementById('sCoblos').textContent = s.coblos;
+      document.getElementById('sBelum').textContent = s.belumHadir;
+      document.getElementById('pctHadir').textContent = s.persenHadir + '%';
+      document.getElementById('barHadir').style.width = Math.max(s.persenHadir, 1) + '%';
+      document.getElementById('pctCoblos').textContent = s.persenCoblos + '%';
+      document.getElementById('barCoblos').style.width = Math.max(s.persenCoblos, 1) + '%';
       document.getElementById('updatedAt').textContent = 'Diperbarui: ' + s.updatedAt;
     }
 
     // ── Render blok chips ──
-    function renderBlokChips(blokData) {
-      var container = document.getElementById('blokChips');
-      container.innerHTML = '';
-
-      var bloks = Object.keys(blokData).sort(function(a, b) {
+    function renderChips(blokData) {
+      var el = document.getElementById('blokChips');
+      el.innerHTML = '';
+      var keys = Object.keys(blokData).sort(function(a, b) {
         return a.localeCompare(b, undefined, { numeric: true });
       });
-
-      bloks.forEach(function(blok) {
+      keys.forEach(function(blok) {
         var d = blokData[blok];
-        var pct = Math.round(d.hadir / d.total * 100);
+        var pct = Math.round(d.coblos / d.total * 100);
         var cls = pct === 100 ? 'ok' : (pct >= 50 ? 'warn' : 'bad');
-
         var chip = document.createElement('span');
-        chip.className = 'blok-chip ' + cls;
-        chip.textContent = blok + ' ' + d.hadir + '/' + d.total;
-        container.appendChild(chip);
+        chip.className = 'chip ' + cls;
+        chip.textContent = blok + ' ' + d.coblos + '/' + d.total;
+        el.appendChild(chip);
       });
     }
 
@@ -455,12 +702,14 @@
       var search = currentSearch.toLowerCase();
 
       allWarga.forEach(function(w) {
-        if (currentFilter === 'hadir' && !w.hadir) return;
+        // Filter
         if (currentFilter === 'belum' && w.hadir) return;
+        if (currentFilter === 'hadir' && (!w.hadir || w.coblos)) return;
+        if (currentFilter === 'coblos' && !w.coblos) return;
 
         if (search) {
-          var haystack = (w.blok + ' ' + w.nama).toLowerCase();
-          if (haystack.indexOf(search) < 0) return;
+          var hay = (w.blok + ' ' + w.nama).toLowerCase();
+          if (hay.indexOf(search) < 0) return;
         }
 
         var prefix = getBlokPrefix(w.blok);
@@ -472,7 +721,7 @@
         return a.localeCompare(b, undefined, { numeric: true });
       });
 
-      if (keys.length === 0) {
+      if (!keys.length) {
         container.innerHTML = '<div class="loading">Tidak ada data ditemukan.</div>';
         return;
       }
@@ -482,8 +731,9 @@
         section.className = 'blok-section';
 
         var list = groups[prefix];
+        var coblCount = list.filter(function(w) { return w.coblos; }).length;
         var hadirCount = list.filter(function(w) { return w.hadir; }).length;
-        var badgeClass = hadirCount === list.length ? 'complete'
+        var badgeClass = coblCount === list.length ? 'complete'
           : (hadirCount > 0 ? 'partial' : 'empty');
 
         var header = document.createElement('div');
@@ -491,12 +741,11 @@
         header.innerHTML =
           '<span class="blok-title">Blok ' + esc(prefix) + '</span>' +
           '<span class="blok-badge ' + badgeClass + '">' +
-          hadirCount + ' / ' + list.length + '</span>';
+          coblCount + '/' + list.length + ' coblos</span>';
 
         var body = document.createElement('div');
         body.className = 'blok-body';
 
-        // Buka kalau sedang search/filter, atau kalau sebelumnya sudah dibuka
         if (search || currentFilter !== 'all' || openBloks[prefix]) {
           body.classList.add('open');
         }
@@ -509,24 +758,59 @@
         })(prefix, body);
 
         list.forEach(function(w) {
-          var row = document.createElement('div');
-          row.className = 'warga-row' + (w.hadir ? ' hadir' : '');
+          var rowClass = 'warga-row';
+          if (w.coblos) rowClass += ' row-coblos';
+          else if (w.hadir) rowClass += ' row-hadir';
 
+          var row = document.createElement('div');
+          row.className = rowClass;
+
+          // Info
           var info = document.createElement('div');
           info.className = 'warga-info';
-          info.innerHTML =
-            '<div class="warga-blok">' + esc(w.blok) + '</div>' +
-            (w.nama ? '<div class="warga-nama">' + esc(w.nama) + '</div>' : '') +
-            (w.hadir && w.timestamp
-              ? '<div class="warga-time">Hadir ' + esc(w.timestamp) + '</div>'
-              : '');
 
+          var infoHTML = '<div class="warga-blok">' + esc(w.blok) + '</div>';
+          if (w.nama) infoHTML += '<div class="warga-nama">' + esc(w.nama) + '</div>';
+          if (w.hadir && w.waktuHadir) infoHTML += '<div class="warga-time">Hadir ' + esc(w.waktuHadir) + '</div>';
+          if (w.coblos && w.waktuCoblos) infoHTML += '<div class="warga-time coblos-time">Coblos ' + esc(w.waktuCoblos) + '</div>';
+          info.innerHTML = infoHTML;
+
+          // Status badge
+          var badge = document.createElement('span');
+          if (w.coblos) {
+            badge.className = 'status-badge coblos';
+            badge.textContent = 'Selesai';
+          } else if (w.hadir) {
+            badge.className = 'status-badge hadir';
+            badge.textContent = 'Hadir';
+          } else {
+            badge.className = 'status-badge belum';
+            badge.textContent = 'Belum';
+          }
+
+          // Action button
           var btn = document.createElement('button');
-          btn.className = 'btn-hadir ' + (w.hadir ? 'undo' : 'mark');
-          btn.textContent = w.hadir ? 'Batal' : 'Hadir';
-          btn.onclick = function() { toggleAbsen(w.blok, w.hadir, btn); };
+          btn.className = 'btn-action';
+
+          if (w.coblos) {
+            // Sudah coblos → batal coblos
+            btn.className += ' batal';
+            btn.textContent = 'Batal';
+            btn.onclick = function() { doCoblosAction(w.blok, 'absen_undo_coblos', btn); };
+          } else if (w.hadir) {
+            // Hadir tapi belum coblos → tandai coblos
+            btn.className += ' coblos';
+            btn.textContent = 'Coblos';
+            btn.onclick = function() { doCoblosAction(w.blok, 'absen_coblos', btn); };
+          } else {
+            // Belum hadir → tandai hadir manual
+            btn.className += ' hadir';
+            btn.textContent = 'Hadir';
+            btn.onclick = function() { doHadirAction(w.blok, btn); };
+          }
 
           row.appendChild(info);
+          row.appendChild(badge);
           row.appendChild(btn);
           body.appendChild(row);
         });
@@ -537,70 +821,38 @@
       });
     }
 
-    // ── Toggle absensi ──
-    function toggleAbsen(blok, isHadir, btn) {
+    // ── Actions ──
+    function doHadirAction(blok, btn) {
       btn.disabled = true;
       btn.textContent = '...';
-
-      // Optimistic update: langsung ubah tampilan row
-      var row = btn.parentElement;
-      if (!isHadir) {
-        row.classList.add('hadir');
-        btn.className = 'btn-hadir undo';
-        btn.textContent = 'Batal';
-      } else {
-        row.classList.remove('hadir');
-        btn.className = 'btn-hadir mark';
-        btn.textContent = 'Hadir';
-      }
-      btn.disabled = false;
-
-      var action = isHadir ? 'absen_undo' : 'absen_checkin';
-
-      api(action, { blok: blok })
+      api('absen_checkin', { blok: blok })
         .then(function(res) {
-          if (!res.success) {
-            alert(res.message);
-            // Rollback
-            if (!isHadir) {
-              row.classList.remove('hadir');
-              btn.className = 'btn-hadir mark';
-              btn.textContent = 'Hadir';
-            } else {
-              row.classList.add('hadir');
-              btn.className = 'btn-hadir undo';
-              btn.textContent = 'Batal';
-            }
-            return;
-          }
-          // Refresh data di background tanpa menutup blok
+          if (!res.success) alert(res.message);
           loadData();
         })
-        .catch(function() {
-          alert('Gagal menghubungi server.');
-          // Rollback
-          if (!isHadir) {
-            row.classList.remove('hadir');
-            btn.className = 'btn-hadir mark';
-            btn.textContent = 'Hadir';
-          } else {
-            row.classList.add('hadir');
-            btn.className = 'btn-hadir undo';
-            btn.textContent = 'Batal';
-          }
-        });
+        .catch(function() { alert('Gagal menghubungi server.'); btn.disabled = false; btn.textContent = 'Hadir'; });
     }
 
-    // ── Filter ──
-    function setFilter(filter) {
-      currentFilter = filter;
-      document.querySelectorAll('.filter-btn').forEach(function(b) {
-        b.classList.toggle('active', b.getAttribute('data-filter') === filter);
+    function doCoblosAction(blok, action, btn) {
+      btn.disabled = true;
+      btn.textContent = '...';
+      api(action, { blok: blok })
+        .then(function(res) {
+          if (!res.success) alert(res.message);
+          loadData();
+        })
+        .catch(function() { alert('Gagal menghubungi server.'); btn.disabled = false; });
+    }
+
+    // ── Filter & Search ──
+    function setFilter(f) {
+      currentFilter = f;
+      document.querySelectorAll('.tab-btn').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-filter') === f);
       });
       renderList();
     }
 
-    // ── Search ──
     document.getElementById('searchBox').addEventListener('input', function() {
       currentSearch = this.value.trim();
       renderList();
@@ -608,8 +860,8 @@
 
     // ── Helpers ──
     function getBlokPrefix(blok) {
-      var match = blok.match(/^([A-Za-z]+)-?(\d+)/);
-      if (match) return (match[1] + match[2]).toUpperCase();
+      var m = blok.match(/^([A-Za-z]+)-?(\d+)/);
+      if (m) return (m[1] + m[2]).toUpperCase();
       return blok.trim().toUpperCase() || '?';
     }
 
@@ -619,194 +871,9 @@
       return d.innerHTML;
     }
 
-    // ── Manual refresh ──
+    // ── Refresh ──
     function refreshData() {
-      var btn = document.querySelector('.refresh-btn');
-      btn.disabled = true;
-      btn.textContent = 'Memuat...';
       loadData();
-      setTimeout(function() {
-        btn.disabled = false;
-        btn.textContent = '🔄 Refresh Data';
-      }, 1500);
-    }
-
-    // ── Download laporan CSV ──
-    function downloadLaporan() {
-      if (!allWarga.length) { alert('Data belum dimuat.'); return; }
-
-      var totalKK = allWarga.length;
-      var hadir = allWarga.filter(function(w) { return w.hadir; });
-      var belum = allWarga.filter(function(w) { return !w.hadir; });
-      var persen = Math.round(hadir.length / totalKK * 100);
-
-      var lines = [];
-      lines.push('LAPORAN DAFTAR HADIR PENCOBLOSAN RT 29');
-      lines.push('Tanggal: ' + new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }));
-      lines.push('');
-      lines.push('RINGKASAN');
-      lines.push('Total KK,' + totalKK);
-      lines.push('Hadir,' + hadir.length);
-      lines.push('Belum Hadir,' + belum.length);
-      lines.push('Persentase Kehadiran,' + persen + '%');
-      lines.push('');
-
-      // Per blok
-      var blokMap = {};
-      allWarga.forEach(function(w) {
-        var prefix = getBlokPrefix(w.blok);
-        if (!blokMap[prefix]) blokMap[prefix] = { total: 0, hadir: 0 };
-        blokMap[prefix].total++;
-        if (w.hadir) blokMap[prefix].hadir++;
-      });
-
-      lines.push('STATUS PER BLOK');
-      lines.push('Blok,Total,Hadir,Belum,Persen');
-      Object.keys(blokMap).sort(function(a, b) {
-        return a.localeCompare(b, undefined, { numeric: true });
-      }).forEach(function(blok) {
-        var d = blokMap[blok];
-        var p = Math.round(d.hadir / d.total * 100);
-        lines.push(blok + ',' + d.total + ',' + d.hadir + ',' + (d.total - d.hadir) + ',' + p + '%');
-      });
-
-      lines.push('');
-      lines.push('DAFTAR HADIR');
-      lines.push('No,Blok,Nama,Status,Waktu Hadir');
-      var no = 1;
-      allWarga.forEach(function(w) {
-        lines.push(no + ',' + w.blok + ',"' + w.nama + '",' +
-          (w.hadir ? 'Hadir' : 'Belum') + ',' +
-          (w.timestamp || '-'));
-        no++;
-      });
-
-      lines.push('');
-      lines.push('BELUM HADIR');
-      lines.push('No,Blok,Nama');
-      var nb = 1;
-      belum.forEach(function(w) {
-        lines.push(nb + ',' + w.blok + ',"' + w.nama + '"');
-        nb++;
-      });
-
-      // BOM untuk Excel baca UTF-8
-      var csv = '﻿' + lines.join('\n');
-      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      var url = URL.createObjectURL(blob);
-
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = 'Laporan_Absensi_RT29_' +
-        new Date().toISOString().slice(0, 10) + '.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    // ── Download PDF ──
-    function downloadPDF() {
-      if (!allWarga.length) { alert('Data belum dimuat.'); return; }
-
-      var totalKK = allWarga.length;
-      var hadirList = allWarga.filter(function(w) { return w.hadir; });
-      var belumList = allWarga.filter(function(w) { return !w.hadir; });
-      var persen = Math.round(hadirList.length / totalKK * 100);
-
-      // Sort hadir berdasarkan waktu kedatangan
-      hadirList.sort(function(a, b) {
-        return (a.timestamp || '').localeCompare(b.timestamp || '');
-      });
-
-      var now = new Date();
-      var tglFormal = now.toLocaleDateString('id-ID', {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-      });
-      var jamCetak = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-      var html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-        '<style>' +
-        'body{font-family:"Times New Roman",Times,serif;color:#000;padding:30px 50px;font-size:12px;line-height:1.6;}' +
-        '.kop{text-align:center;border-bottom:3px double #000;padding-bottom:12px;margin-bottom:20px;}' +
-        '.kop h1{font-size:15px;font-weight:bold;margin:0;letter-spacing:1px;}' +
-        '.kop h2{font-size:13px;font-weight:bold;margin:2px 0;}' +
-        '.kop .alamat{font-size:10px;margin:2px 0;color:#333;}' +
-        '.judul{text-align:center;margin:16px 0;font-size:16px;font-weight:bold;text-decoration:underline;letter-spacing:2px;}' +
-        '.info-table{margin:0 0 16px;font-size:12px;}' +
-        '.info-table td{padding:2px 0;vertical-align:top;}' +
-        '.info-table td:first-child{width:120px;font-weight:bold;}' +
-        '.info-table td:nth-child(2){width:14px;text-align:center;}' +
-        'table.daftar{width:100%;border-collapse:collapse;margin:12px 0;}' +
-        'table.daftar th,table.daftar td{border:1px solid #000;padding:6px 10px;font-size:11px;}' +
-        'table.daftar th{background:#f0f0f0;font-weight:bold;text-align:center;}' +
-        'table.daftar td.no{text-align:center;width:36px;}' +
-        'table.daftar td.blok{text-align:center;width:80px;}' +
-        'table.daftar td.waktu{text-align:center;width:90px;font-size:10px;color:#444;}' +
-        '.ringkasan{margin:16px 0;padding:12px 16px;border:1px solid #000;font-size:12px;}' +
-        '.ringkasan td{padding:3px 0;}' +
-        '.ringkasan td:first-child{width:180px;}' +
-        '.ringkasan td:nth-child(2){width:14px;text-align:center;}' +
-        '.ringkasan td:last-child{font-weight:bold;}' +
-        '.ttd-area{margin-top:40px;display:flex;justify-content:space-between;}' +
-        '.ttd-box{text-align:center;width:200px;}' +
-        '.ttd-box .line{margin-top:60px;border-top:1px solid #000;padding-top:4px;}' +
-        '.footer-note{text-align:center;color:#999;font-size:9px;margin-top:30px;border-top:1px solid #ccc;padding-top:8px;}' +
-        '@media print{body{padding:20px 40px;}@page{margin:15mm;size:A4;}}' +
-        '</style></head><body>';
-
-      // Kop surat
-      html += '<div class="kop">';
-      html += '<h1>PERMATA GREEN MENGANTI REGENCY</h1>';
-      html += '<h2>RT. 29 RW. 10</h2>';
-      html += '<div class="alamat">Desa Drancang - Kecamatan Menganti</div>';
-      html += '<div class="alamat">Kabupaten Gresik - Jawa Timur</div>';
-      html += '<div class="alamat">Kode Pos 61174</div>';
-      html += '</div>';
-
-      // Judul
-      html += '<div class="judul">DAFTAR HADIR</div>';
-
-      // Info acara
-      html += '<table class="info-table">';
-      html += '<tr><td>Hari / Tanggal</td><td>:</td><td>Sabtu, 31 Oktober 2026</td></tr>';
-      html += '<tr><td>Waktu</td><td>:</td><td>19:00 – selesai</td></tr>';
-      html += '<tr><td>Agenda</td><td>:</td><td>Pemilihan Ketua RT 29 RW 10</td></tr>';
-      html += '<tr><td>Tempat</td><td>:</td><td>Pos Tanah Lot</td></tr>';
-      html += '</table>';
-
-      // Tabel daftar hadir (urut waktu kedatangan)
-      html += '<table class="daftar">';
-      html += '<tr><th>No</th><th>Nama</th><th>Blok</th><th>Waktu Hadir</th></tr>';
-      hadirList.forEach(function(w, i) {
-        html += '<tr>';
-        html += '<td class="no">' + (i + 1) + '</td>';
-        html += '<td>' + esc(w.nama) + '</td>';
-        html += '<td class="blok">' + esc(w.blok) + '</td>';
-        html += '<td class="waktu">' + (w.timestamp || '-') + '</td>';
-        html += '</tr>';
-      });
-      html += '</table>';
-
-      // Ringkasan
-      html += '<table class="ringkasan">';
-      html += '<tr><td>Total Warga Terdaftar</td><td>:</td><td>' + totalKK + ' KK</td></tr>';
-      html += '<tr><td>Hadir</td><td>:</td><td>' + hadirList.length + ' KK</td></tr>';
-      html += '<tr><td>Tidak Hadir</td><td>:</td><td>' + belumList.length + ' KK</td></tr>';
-      html += '<tr><td>Persentase Kehadiran</td><td>:</td><td>' + persen + '%</td></tr>';
-      html += '</table>';
-
-      // Area tanda tangan
-      html += '<div class="ttd-area">';
-      html += '<div class="ttd-box">Mengetahui,<div class="line">Ketua Panitia</div></div>';
-      html += '<div class="ttd-box">Gresik, ' + now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + '<div class="line">Petugas Absensi</div></div>';
-      html += '</div>';
-
-      html += '<div class="footer-note">Dicetak dari Sistem Absensi RT 29 &mdash; ' + tglFormal + ' pukul ' + jamCetak + '</div>';
-      html += '</body></html>';
-
-      var win = window.open('', '_blank');
-      win.document.write(html);
-      win.document.close();
-      setTimeout(function() { win.print(); }, 500);
     }
 
     // ── Tambah Warga ──
@@ -817,7 +884,6 @@
       body.style.display = isOpen ? 'none' : 'block';
       btn.textContent = isOpen ? 'Buka' : 'Tutup';
       btn.style.color = isOpen ? '#64748b' : '#dc2626';
-      btn.style.borderColor = isOpen ? '#e2e8f0' : '#fecaca';
       if (!isOpen) document.getElementById('addNama').focus();
     }
 
@@ -837,16 +903,11 @@
         .then(function(res) {
           btn.disabled = false;
           btn.textContent = 'Tambah';
-
-          if (!res.success) {
-            showAddMsg(msg, 'error', res.message);
-            return;
-          }
-
+          if (!res.success) { showAddMsg(msg, 'error', res.message); return; }
           showAddMsg(msg, 'success', res.message);
           document.getElementById('addNama').value = '';
           document.getElementById('addBlok').value = '';
-          loadData(); // refresh daftar
+          loadData();
         })
         .catch(function() {
           btn.disabled = false;
@@ -858,18 +919,145 @@
     function showAddMsg(el, type, text) {
       el.style.display = 'block';
       el.textContent = text;
-      if (type === 'error') {
-        el.style.background = '#fef2f2';
-        el.style.color = '#dc2626';
-      } else {
-        el.style.background = '#f0fdf4';
-        el.style.color = '#16a34a';
-      }
+      el.style.background = type === 'error' ? '#fef2f2' : '#f0fdf4';
+      el.style.color = type === 'error' ? '#dc2626' : '#16a34a';
       setTimeout(function() { el.style.display = 'none'; }, 4000);
     }
 
-    // ── Init ──
-    loadData();
+    // ── Download CSV ──
+    function downloadLaporan() {
+      if (!allWarga.length) { alert('Data belum dimuat.'); return; }
+
+      var lines = [];
+      lines.push('LAPORAN PENCOBLOSAN RT 29');
+      lines.push('Tanggal: ' + new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }));
+      lines.push('');
+
+      var totalKK = allWarga.length;
+      var hadir = allWarga.filter(function(w) { return w.hadir; });
+      var coblos = allWarga.filter(function(w) { return w.coblos; });
+      var belum = allWarga.filter(function(w) { return !w.hadir; });
+
+      lines.push('RINGKASAN');
+      lines.push('Total KK,' + totalKK);
+      lines.push('Hadir,' + hadir.length);
+      lines.push('Sudah Coblos,' + coblos.length);
+      lines.push('Belum Hadir,' + belum.length);
+      lines.push('Persentase Hadir,' + Math.round(hadir.length / totalKK * 100) + '%');
+      lines.push('Persentase Coblos,' + Math.round(coblos.length / totalKK * 100) + '%');
+      lines.push('');
+
+      lines.push('DAFTAR LENGKAP');
+      lines.push('No,Blok,Nama,Status,Waktu Hadir,Waktu Coblos');
+      allWarga.forEach(function(w, i) {
+        var status = w.coblos ? 'Sudah Coblos' : (w.hadir ? 'Hadir' : 'Belum');
+        lines.push((i+1) + ',' + w.blok + ',"' + w.nama + '",' + status + ',' +
+          (w.waktuHadir || '-') + ',' + (w.waktuCoblos || '-'));
+      });
+
+      var csv = '﻿' + lines.join('\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'Laporan_Coblos_RT29_' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ── Download PDF ──
+    function downloadPDF() {
+      if (!allWarga.length) { alert('Data belum dimuat.'); return; }
+
+      var totalKK = allWarga.length;
+      var hadirList = allWarga.filter(function(w) { return w.hadir; });
+      var coblosList = allWarga.filter(function(w) { return w.coblos; });
+      var belumList = allWarga.filter(function(w) { return !w.hadir; });
+      var pHadir = Math.round(hadirList.length / totalKK * 100);
+      var pCoblos = Math.round(coblosList.length / totalKK * 100);
+
+      coblosList.sort(function(a, b) {
+        return (a.waktuCoblos || '').localeCompare(b.waktuCoblos || '');
+      });
+
+      var now = new Date();
+      var tgl = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+      var jam = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+
+      var html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+        '<style>' +
+        'body{font-family:"Times New Roman",Times,serif;color:#000;padding:30px 50px;font-size:12px;line-height:1.6;}' +
+        '.kop{text-align:center;border-bottom:3px double #000;padding-bottom:12px;margin-bottom:20px;}' +
+        '.kop h1{font-size:15px;font-weight:bold;margin:0;letter-spacing:1px;}' +
+        '.kop h2{font-size:13px;font-weight:bold;margin:2px 0;}' +
+        '.kop .alamat{font-size:10px;margin:2px 0;color:#333;}' +
+        '.judul{text-align:center;margin:16px 0;font-size:16px;font-weight:bold;text-decoration:underline;letter-spacing:2px;}' +
+        '.info td{padding:2px 0;vertical-align:top;font-size:12px;}' +
+        '.info td:first-child{width:120px;font-weight:bold;}' +
+        '.info td:nth-child(2){width:14px;text-align:center;}' +
+        'table.daftar{width:100%;border-collapse:collapse;margin:12px 0;}' +
+        'table.daftar th,table.daftar td{border:1px solid #000;padding:6px 10px;font-size:11px;}' +
+        'table.daftar th{background:#f0f0f0;font-weight:bold;text-align:center;}' +
+        'table.daftar td.c{text-align:center;}' +
+        '.ringkasan{margin:16px 0;padding:12px 16px;border:1px solid #000;font-size:12px;}' +
+        '.ringkasan td{padding:3px 0;}' +
+        '.ringkasan td:first-child{width:180px;}' +
+        '.ringkasan td:nth-child(2){width:14px;text-align:center;}' +
+        '.ringkasan td:last-child{font-weight:bold;}' +
+        '.ttd{margin-top:40px;display:flex;justify-content:space-between;}' +
+        '.ttd-box{text-align:center;width:200px;}' +
+        '.ttd-box .line{margin-top:60px;border-top:1px solid #000;padding-top:4px;}' +
+        '.fn{text-align:center;color:#999;font-size:9px;margin-top:30px;border-top:1px solid #ccc;padding-top:8px;}' +
+        '@media print{body{padding:20px 40px;}@page{margin:15mm;size:A4;}}' +
+        '</style></head><body>';
+
+      html += '<div class="kop">';
+      html += '<h1>PERMATA GREEN MENGANTI REGENCY</h1>';
+      html += '<h2>RT. 29 RW. 10</h2>';
+      html += '<div class="alamat">Desa Drancang - Kecamatan Menganti</div>';
+      html += '<div class="alamat">Kabupaten Gresik - Jawa Timur, Kode Pos 61174</div>';
+      html += '</div>';
+
+      html += '<div class="judul">DAFTAR HADIR PENCOBLOSAN</div>';
+
+      html += '<table class="info">';
+      html += '<tr><td>Hari / Tanggal</td><td>:</td><td>' + tgl + '</td></tr>';
+      html += '<tr><td>Waktu</td><td>:</td><td>19:00 – selesai</td></tr>';
+      html += '<tr><td>Agenda</td><td>:</td><td>Pemilihan Ketua RT 29 RW 10</td></tr>';
+      html += '<tr><td>Tempat</td><td>:</td><td>Pos Tanah Lot</td></tr>';
+      html += '</table>';
+
+      html += '<table class="daftar">';
+      html += '<tr><th>No</th><th>Nama</th><th>Blok</th><th>Waktu Hadir</th><th>Waktu Coblos</th></tr>';
+      coblosList.forEach(function(w, i) {
+        html += '<tr><td class="c">' + (i+1) + '</td><td>' + esc(w.nama) +
+          '</td><td class="c">' + esc(w.blok) +
+          '</td><td class="c">' + (w.waktuHadir || '-') +
+          '</td><td class="c">' + (w.waktuCoblos || '-') + '</td></tr>';
+      });
+      html += '</table>';
+
+      html += '<table class="ringkasan">';
+      html += '<tr><td>Total Warga Terdaftar</td><td>:</td><td>' + totalKK + ' KK</td></tr>';
+      html += '<tr><td>Hadir</td><td>:</td><td>' + hadirList.length + ' KK (' + pHadir + '%)</td></tr>';
+      html += '<tr><td>Sudah Coblos</td><td>:</td><td>' + coblosList.length + ' KK (' + pCoblos + '%)</td></tr>';
+      html += '<tr><td>Tidak Hadir</td><td>:</td><td>' + belumList.length + ' KK</td></tr>';
+      html += '</table>';
+
+      html += '<div class="ttd">';
+      html += '<div class="ttd-box">Mengetahui,<div class="line">Ketua Panitia</div></div>';
+      html += '<div class="ttd-box">Gresik, ' + now.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) +
+        '<div class="line">Petugas Absensi</div></div>';
+      html += '</div>';
+
+      html += '<div class="fn">Dicetak dari Sistem Pencoblosan RT 29 — ' + tgl + ' pukul ' + jam + '</div>';
+      html += '</body></html>';
+
+      var win = window.open('', '_blank');
+      win.document.write(html);
+      win.document.close();
+      setTimeout(function() { win.print(); }, 500);
+    }
   </script>
 </body>
 </html>
