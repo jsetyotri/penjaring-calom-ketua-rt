@@ -348,7 +348,7 @@
 
   <script>
     // ▼▼▼ GANTI URL INI dengan URL deployment Apps Script ▼▼▼
-    var API_URL = 'https://script.google.com/macros/s/AKfycbzzOc0CGJJR3qtVGpJ7ir2RxGa9p66rF8jeOoUuqwCnhIZmqdw3nABHPL9GROTPRmbPFg/exec';
+    var API_URL = 'https://script.google.com/macros/s/XXXXXXXXXX/exec';
     // ▲▲▲ GANTI URL DI ATAS ▲▲▲
 
     var allWarga = [];
@@ -534,8 +534,8 @@
 
     // ── Helpers ──
     function getBlokPrefix(blok) {
-      var match = blok.match(/^([A-Za-z]+\d+)/);
-      return match ? match[1].toUpperCase() : 'LAIN';
+      var match = blok.match(/^([A-Za-z]+)-?(\d+)/);
+      return match ? (match[1] + match[2]).toUpperCase() : 'LAIN';
     }
 
     function esc(s) {
