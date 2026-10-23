@@ -1148,96 +1148,171 @@
     function downloadPDF() {
       if (!allWarga.length) { alert('Data belum dimuat.'); return; }
 
+      // Load jsPDF + autoTable jika belum
+      if (!window.jspdf) {
+        var btn = event.target;
+        btn.disabled = true; btn.textContent = 'Loading...';
+        var s1 = document.createElement('script');
+        s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        s1.onload = function() {
+          var s2 = document.createElement('script');
+          s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';
+          s2.onload = function() { btn.disabled = false; btn.textContent = 'PDF'; buildPDF(); };
+          document.head.appendChild(s2);
+        };
+        document.head.appendChild(s1);
+        return;
+      }
+      buildPDF();
+    }
+
+    function buildPDF() {
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF('p', 'mm', 'a4');
+      var pw = doc.internal.pageSize.getWidth();
+      var mx = 18; // margin x
+      var y = 16;
+
+      // ── KOP SURAT ──
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.text('PERMATA GREEN MENGANTI REGENCY', pw / 2, y, { align: 'center' });
+      y += 6;
+      doc.setFontSize(11);
+      doc.text('RT. 29 RW. 10', pw / 2, y, { align: 'center' });
+      y += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('Desa Drancang - Kecamatan Menganti', pw / 2, y, { align: 'center' });
+      y += 4;
+      doc.text('Kabupaten Gresik - Jawa Timur, Kode Pos 61174', pw / 2, y, { align: 'center' });
+      y += 4;
+      // Garis double
+      doc.setLineWidth(0.8);
+      doc.line(mx, y, pw - mx, y);
+      doc.setLineWidth(0.3);
+      doc.line(mx, y + 1.2, pw - mx, y + 1.2);
+      y += 8;
+
+      // ── JUDUL ──
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('DAFTAR HADIR PENCOBLOSAN', pw / 2, y, { align: 'center' });
+      y += 3;
+      doc.setLineWidth(0.5);
+      var tw = doc.getTextWidth('DAFTAR HADIR PENCOBLOSAN');
+      doc.line((pw - tw) / 2, y, (pw + tw) / 2, y);
+      y += 8;
+
+      // ── INFO ──
+      var now = new Date();
+      var tgl = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      var infoRows = [
+        ['Hari / Tanggal', tgl],
+        ['Waktu', '19:00 – selesai'],
+        ['Agenda', 'Pemilihan Ketua RT 29 RW 10'],
+        ['Tempat', 'Pos Tanah Lot']
+      ];
+      infoRows.forEach(function(r) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(r[0], mx, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(':  ' + r[1], mx + 32, y);
+        y += 5;
+      });
+      y += 3;
+
+      // ── TABEL DAFTAR HADIR ──
       var totalKK = allWarga.length;
       var hadirList = allWarga.filter(function(w) { return w.hadir; });
       var coblosList = allWarga.filter(function(w) { return w.coblos; });
       var belumList = allWarga.filter(function(w) { return !w.hadir; });
-      var pHadir = Math.round(hadirList.length / totalKK * 100);
-      var pCoblos = Math.round(coblosList.length / totalKK * 100);
 
       coblosList.sort(function(a, b) {
         return (a.waktuCoblos || '').localeCompare(b.waktuCoblos || '');
       });
 
-      var now = new Date();
-      var tgl = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-      var jam = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
-
-      var html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
-        '<style>' +
-        'body{font-family:"Times New Roman",Times,serif;color:#000;padding:30px 50px;font-size:12px;line-height:1.6;}' +
-        '.kop{text-align:center;border-bottom:3px double #000;padding-bottom:12px;margin-bottom:20px;}' +
-        '.kop h1{font-size:15px;font-weight:bold;margin:0;letter-spacing:1px;}' +
-        '.kop h2{font-size:13px;font-weight:bold;margin:2px 0;}' +
-        '.kop .alamat{font-size:10px;margin:2px 0;color:#333;}' +
-        '.judul{text-align:center;margin:16px 0;font-size:16px;font-weight:bold;text-decoration:underline;letter-spacing:2px;}' +
-        '.info td{padding:2px 0;vertical-align:top;font-size:12px;}' +
-        '.info td:first-child{width:120px;font-weight:bold;}' +
-        '.info td:nth-child(2){width:14px;text-align:center;}' +
-        'table.daftar{width:100%;border-collapse:collapse;margin:12px 0;}' +
-        'table.daftar th,table.daftar td{border:1px solid #000;padding:6px 10px;font-size:11px;}' +
-        'table.daftar th{background:#f0f0f0;font-weight:bold;text-align:center;}' +
-        'table.daftar td.c{text-align:center;}' +
-        '.ringkasan{margin:16px 0;padding:12px 16px;border:1px solid #000;font-size:12px;}' +
-        '.ringkasan td{padding:3px 0;}' +
-        '.ringkasan td:first-child{width:180px;}' +
-        '.ringkasan td:nth-child(2){width:14px;text-align:center;}' +
-        '.ringkasan td:last-child{font-weight:bold;}' +
-        '.ttd{margin-top:40px;display:flex;justify-content:space-between;}' +
-        '.ttd-box{text-align:center;width:200px;}' +
-        '.ttd-box .line{margin-top:60px;border-top:1px solid #000;padding-top:4px;}' +
-        '.fn{text-align:center;color:#999;font-size:9px;margin-top:30px;border-top:1px solid #ccc;padding-top:8px;}' +
-        '@media print{body{padding:20px 40px;}@page{margin:15mm;size:A4;}}' +
-        '</style></head><body>';
-
-      html += '<div class="kop">';
-      html += '<h1>PERMATA GREEN MENGANTI REGENCY</h1>';
-      html += '<h2>RT. 29 RW. 10</h2>';
-      html += '<div class="alamat">Desa Drancang - Kecamatan Menganti</div>';
-      html += '<div class="alamat">Kabupaten Gresik - Jawa Timur, Kode Pos 61174</div>';
-      html += '</div>';
-
-      html += '<div class="judul">DAFTAR HADIR PENCOBLOSAN</div>';
-
-      html += '<table class="info">';
-      html += '<tr><td>Hari / Tanggal</td><td>:</td><td>Sabtu, 31 Oktober 2026</td></tr>';
-      html += '<tr><td>Waktu</td><td>:</td><td>19:00 – selesai</td></tr>';
-      html += '<tr><td>Agenda</td><td>:</td><td>Pemilihan Ketua RT 29 RW 10</td></tr>';
-      html += '<tr><td>Tempat</td><td>:</td><td>Pos Tanah Lot</td></tr>';
-      html += '</table>';
-
-      html += '<table class="daftar">';
-      html += '<tr><th>No</th><th>Nama</th><th>Blok</th><th>Sumber</th><th>Waktu Hadir</th><th>Waktu Coblos</th></tr>';
-      coblosList.forEach(function(w, i) {
+      var tableHead = [['No', 'Nama', 'Blok', 'Sumber', 'Waktu Hadir', 'Waktu Coblos']];
+      var tableBody = coblosList.map(function(w, i) {
         var sumber = w.sumber ? (w.sumber === 'Mandiri' ? 'QR Mandiri' : 'Via Petugas') : '-';
-        html += '<tr><td class="c">' + (i+1) + '</td><td>' + esc(w.nama) +
-          '</td><td class="c">' + esc(w.blok) +
-          '</td><td class="c">' + sumber +
-          '</td><td class="c">' + (w.waktuHadir || '-') +
-          '</td><td class="c">' + (w.waktuCoblos || '-') + '</td></tr>';
+        return [i + 1, w.nama, w.blok, sumber, w.waktuHadir || '-', w.waktuCoblos || '-'];
       });
-      html += '</table>';
 
-      html += '<table class="ringkasan">';
-      html += '<tr><td>Total Warga Terdaftar</td><td>:</td><td>' + totalKK + ' KK</td></tr>';
-      html += '<tr><td>Hadir</td><td>:</td><td>' + hadirList.length + ' KK (' + pHadir + '%)</td></tr>';
-      html += '<tr><td>Sudah Coblos</td><td>:</td><td>' + coblosList.length + ' KK (' + pCoblos + '%)</td></tr>';
-      html += '<tr><td>Tidak Hadir</td><td>:</td><td>' + belumList.length + ' KK</td></tr>';
-      html += '</table>';
+      doc.autoTable({
+        startY: y,
+        head: tableHead,
+        body: tableBody,
+        margin: { left: mx, right: mx },
+        styles: { font: 'helvetica', fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', halign: 'center' },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 10 },
+          2: { halign: 'center', cellWidth: 20 },
+          3: { halign: 'center', cellWidth: 22 },
+          4: { halign: 'center', cellWidth: 24 },
+          5: { halign: 'center', cellWidth: 24 }
+        },
+        theme: 'grid'
+      });
 
-      html += '<div class="ttd">';
-      html += '<div class="ttd-box">Mengetahui,<div class="line">Ketua Panitia</div></div>';
-      html += '<div class="ttd-box">Gresik, ' + now.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) +
-        '<div class="line">Petugas Absensi</div></div>';
-      html += '</div>';
+      y = doc.lastAutoTable.finalY + 8;
 
-      html += '<div class="fn">Dicetak dari Sistem Pencoblosan RT 29 — ' + tgl + ' pukul ' + jam + '</div>';
-      html += '</body></html>';
+      // ── RINGKASAN ──
+      var pHadir = Math.round(hadirList.length / totalKK * 100);
+      var pCoblos = Math.round(coblosList.length / totalKK * 100);
 
-      var win = window.open('', '_blank');
-      win.document.write(html);
-      win.document.close();
-      setTimeout(function() { win.print(); }, 500);
+      // Box
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.3);
+      doc.rect(mx, y, pw - mx * 2, 26);
+
+      y += 5;
+      doc.setFontSize(9);
+      var ringkasan = [
+        ['Total Warga Terdaftar', totalKK + ' KK'],
+        ['Hadir', hadirList.length + ' KK (' + pHadir + '%)'],
+        ['Sudah Coblos', coblosList.length + ' KK (' + pCoblos + '%)'],
+        ['Tidak Hadir', belumList.length + ' KK']
+      ];
+      ringkasan.forEach(function(r) {
+        doc.setFont('helvetica', 'normal');
+        doc.text(r[0], mx + 4, y);
+        doc.text(':', mx + 46, y);
+        doc.setFont('helvetica', 'bold');
+        doc.text(r[1], mx + 50, y);
+        y += 5.5;
+      });
+
+      y += 10;
+
+      // ── TTD ──
+      // Check if we need new page
+      if (y > 250) { doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+
+      // Kiri
+      doc.text('Mengetahui,', mx + 10, y, { align: 'center' });
+      doc.line(mx - 4, y + 28, mx + 44, y + 28);
+      doc.text('Ketua Panitia', mx + 20, y + 32, { align: 'center' });
+
+      // Kanan
+      var rx = pw - mx - 20;
+      doc.text('Gresik, ' + now.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }), rx, y, { align: 'center' });
+      doc.line(rx - 24, y + 28, rx + 24, y + 28);
+      doc.text('Petugas Absensi', rx, y + 32, { align: 'center' });
+
+      // ── FOOTER ──
+      var jam = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text('Dicetak dari Sistem Pencoblosan RT 29 — ' + tgl + ' pukul ' + jam,
+        pw / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+
+      // ── SAVE ──
+      doc.save('Laporan_Coblos_RT29_' + now.toISOString().slice(0, 10) + '.pdf');
     }
   </script>
 </body>
