@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Hadir Pencoblosan RT 29</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+      background: #f0fdf4;
+      color: #1e293b;
+      padding: 12px;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .container { max-width: 540px; margin: 0 auto; width: 100%; }
+
+    .header {
+      background: linear-gradient(135deg, #166534, #22c55e);
+      color: white;
+      padding: 24px 20px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .header h1 { font-size: 1.25rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .header p { font-size: 0.85rem; opacity: 0.9; }
+
+    /* ── Stats ── */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      background: white;
+      padding: 14px 8px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+
+    .stat-num {
+      font-size: 1.6rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-num.green { color: #16a34a; }
+    .stat-num.red { color: #dc2626; }
+    .stat-num.blue { color: #1e40af; }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .persen-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+
+    .persen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .persen-header span { font-size: 0.85rem; font-weight: 600; color: #334155; }
+
+    .persen-header strong {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #16a34a;
+    }
+
+    .bar-track {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      border-radius: 12px;
+      transition: width 0.5s ease;
+      min-width: 2px;
+    }
+
+    /* ── Search & filter ── */
+    .controls {
+      background: white;
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+
+    .search-box {
+      display: block;
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      outline: none;
+      background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus { border-color: #22c55e; background: white; }
+
+    .filters {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: inherit;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #64748b;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      border-color: #22c55e;
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    /* ── Blok summary chips ── */
+    .blok-summary {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+
+    .blok-summary h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+
+    .blok-chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .blok-chip {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .blok-chip.ok { background: #dcfce7; color: #16a34a; }
+    .blok-chip.warn { background: #fef9c3; color: #a16207; }
+    .blok-chip.bad { background: #fee2e2; color: #dc2626; }
+
+    /* ── Blok section ── */
+    .blok-section {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .blok-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border-bottom: 1px solid #f1f5f9;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .blok-header:active { background: #f1f5f9; }
+    .blok-title { font-size: 0.9rem; font-weight: 700; color: #334155; }
+
+    .blok-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .blok-badge.complete { background: #dcfce7; color: #16a34a; }
+    .blok-badge.partial { background: #fef9c3; color: #a16207; }
+    .blok-badge.empty { background: #fee2e2; color: #dc2626; }
+
+    .blok-body { display: none; }
+    .blok-body.open { display: block; }
+
+    /* ── Warga row ── */
+    .warga-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid #f8fafc;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+
+    .warga-row:last-child { border-bottom: none; }
+    .warga-row.hadir { background: #f0fdf4; }
+
+    .warga-info { flex: 1; min-width: 0; }
+    .warga-blok { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+
+    .warga-nama {
+      font-size: 0.8rem;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .warga-time { font-size: 0.7rem; color: #16a34a; margin-top: 2px; }
+
+    .btn-hadir {
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: inherit;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-hadir.mark { background: #22c55e; color: white; }
+    .btn-hadir.mark:active { background: #16a34a; transform: scale(0.96); }
+    .btn-hadir.undo { background: #fee2e2; color: #dc2626; font-weight: 600; }
+    .btn-hadir.undo:active { background: #fecaca; }
+    .btn-hadir:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .footer {
+      text-align: center;
+      padding: 12px;
+      font-size: 0.7rem;
+      color: #94a3b8;
+    }
+
+    .dot {
+      display: inline-block; width: 6px; height: 6px;
+      background: #22c55e; border-radius: 50%;
+      margin-right: 4px; vertical-align: middle;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+    .loading { text-align: center; padding: 40px; color: #94a3b8; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Daftar Hadir Pencoblosan</h1>
+      <p>RT 29 &mdash; Petugas input kehadiran warga</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num blue" id="sTotal">—</div>
+        <div class="stat-label">Total KK</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num green" id="sHadir">—</div>
+        <div class="stat-label">Hadir</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num red" id="sBelum">—</div>
+        <div class="stat-label">Belum</div>
+      </div>
+    </div>
+
+    <div class="persen-bar">
+      <div class="persen-header">
+        <span>Kehadiran</span>
+        <strong id="sPersen">0%</strong>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="sBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Blok overview -->
+    <div class="blok-summary">
+      <h2>Status Per Blok</h2>
+      <div class="blok-chip-grid" id="blokChips"></div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="controls">
+      <input type="text" class="search-box" id="searchBox"
+        placeholder="Cari blok atau nama..." autocomplete="off">
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Semua</button>
+        <button class="filter-btn" data-filter="belum" onclick="setFilter('belum')">Belum Hadir</button>
+        <button class="filter-btn" data-filter="hadir" onclick="setFilter('hadir')">Sudah Hadir</button>
+      </div>
+    </div>
+
+    <!-- Warga list -->
+    <div id="wargaList">
+      <div class="loading">Memuat data warga...</div>
+    </div>
+
+    <div class="footer">
+      <div id="updatedAt"></div>
+      <div><span class="dot"></span> Auto-refresh tiap 15 detik</div>
+    </div>
+  </div>
+
+  <script>
+    // ▼▼▼ GANTI URL INI dengan URL deployment Apps Script ▼▼▼
+    var API_URL = 'https://script.google.com/macros/s/XXXXXXXXXX/exec';
+    // ▲▲▲ GANTI URL DI ATAS ▲▲▲
+
+    var allWarga = [];
+    var currentFilter = 'all';
+    var currentSearch = '';
+
+    function api(action, params) {
+      var url = API_URL + '?action=' + action;
+      if (params) {
+        for (var k in params) url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+      }
+      return fetch(url).then(function(r) { return r.json(); });
+    }
+
+    // ── Load data ──
+    function loadData() {
+      api('absen_data')
+        .then(function(res) {
+          if (!res.success) return;
+          allWarga = res.data.warga || [];
+          renderStats(res.data.stats);
+          renderBlokChips(res.data.stats.blok || {});
+          renderList();
+        })
+        .catch(function() {
+          document.getElementById('wargaList').innerHTML =
+            '<div class="loading" style="color:#dc2626">Gagal memuat data. Coba refresh.</div>';
+        });
+    }
+
+    // ── Render stats ──
+    function renderStats(s) {
+      document.getElementById('sTotal').textContent = s.total;
+      document.getElementById('sHadir').textContent = s.hadir;
+      document.getElementById('sBelum').textContent = s.belum;
+      document.getElementById('sPersen').textContent = s.persen + '%';
+      document.getElementById('sBar').style.width = Math.max(s.persen, 1) + '%';
+      document.getElementById('updatedAt').textContent = 'Diperbarui: ' + s.updatedAt;
+    }
+
+    // ── Render blok chips ──
+    function renderBlokChips(blokData) {
+      var container = document.getElementById('blokChips');
+      container.innerHTML = '';
+
+      var bloks = Object.keys(blokData).sort(function(a, b) {
+        return a.localeCompare(b, undefined, { numeric: true });
+      });
+
+      bloks.forEach(function(blok) {
+        var d = blokData[blok];
+        var pct = Math.round(d.hadir / d.total * 100);
+        var cls = pct === 100 ? 'ok' : (pct >= 50 ? 'warn' : 'bad');
+
+        var chip = document.createElement('span');
+        chip.className = 'blok-chip ' + cls;
+        chip.textContent = blok + ' ' + d.hadir + '/' + d.total;
+        container.appendChild(chip);
+      });
+    }
+
+    // ── Render warga list ──
+    function renderList() {
+      var container = document.getElementById('wargaList');
+      container.innerHTML = '';
+
+      var groups = {};
+      var search = currentSearch.toLowerCase();
+
+      allWarga.forEach(function(w) {
+        if (currentFilter === 'hadir' && !w.hadir) return;
+        if (currentFilter === 'belum' && w.hadir) return;
+
+        if (search) {
+          var haystack = (w.blok + ' ' + w.nama).toLowerCase();
+          if (haystack.indexOf(search) < 0) return;
+        }
+
+        var prefix = getBlokPrefix(w.blok);
+        if (!groups[prefix]) groups[prefix] = [];
+        groups[prefix].push(w);
+      });
+
+      var keys = Object.keys(groups).sort(function(a, b) {
+        return a.localeCompare(b, undefined, { numeric: true });
+      });
+
+      if (keys.length === 0) {
+        container.innerHTML = '<div class="loading">Tidak ada data ditemukan.</div>';
+        return;
+      }
+
+      keys.forEach(function(prefix) {
+        var section = document.createElement('div');
+        section.className = 'blok-section';
+
+        var list = groups[prefix];
+        var hadirCount = list.filter(function(w) { return w.hadir; }).length;
+        var badgeClass = hadirCount === list.length ? 'complete'
+          : (hadirCount > 0 ? 'partial' : 'empty');
+
+        var header = document.createElement('div');
+        header.className = 'blok-header';
+        header.innerHTML =
+          '<span class="blok-title">Blok ' + esc(prefix) + '</span>' +
+          '<span class="blok-badge ' + badgeClass + '">' +
+          hadirCount + ' / ' + list.length + '</span>';
+
+        var body = document.createElement('div');
+        body.className = 'blok-body';
+
+        if (search || currentFilter !== 'all') body.classList.add('open');
+
+        header.onclick = function() { body.classList.toggle('open'); };
+
+        list.forEach(function(w) {
+          var row = document.createElement('div');
+          row.className = 'warga-row' + (w.hadir ? ' hadir' : '');
+
+          var info = document.createElement('div');
+          info.className = 'warga-info';
+          info.innerHTML =
+            '<div class="warga-blok">' + esc(w.blok) + '</div>' +
+            (w.nama ? '<div class="warga-nama">' + esc(w.nama) + '</div>' : '') +
+            (w.hadir && w.timestamp
+              ? '<div class="warga-time">Hadir ' + esc(w.timestamp) + '</div>'
+              : '');
+
+          var btn = document.createElement('button');
+          btn.className = 'btn-hadir ' + (w.hadir ? 'undo' : 'mark');
+          btn.textContent = w.hadir ? 'Batal' : 'Hadir';
+          btn.onclick = function() { toggleAbsen(w.blok, w.hadir, btn); };
+
+          row.appendChild(info);
+          row.appendChild(btn);
+          body.appendChild(row);
+        });
+
+        section.appendChild(header);
+        section.appendChild(body);
+        container.appendChild(section);
+      });
+    }
+
+    // ── Toggle absensi ──
+    function toggleAbsen(blok, isHadir, btn) {
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      var action = isHadir ? 'absen_undo' : 'absen_checkin';
+
+      api(action, { blok: blok })
+        .then(function(res) {
+          if (!res.success) {
+            alert(res.message);
+            btn.disabled = false;
+            btn.textContent = isHadir ? 'Batal' : 'Hadir';
+            return;
+          }
+          loadData();
+        })
+        .catch(function() {
+          alert('Gagal menghubungi server.');
+          btn.disabled = false;
+          btn.textContent = isHadir ? 'Batal' : 'Hadir';
+        });
+    }
+
+    // ── Filter ──
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-filter') === filter);
+      });
+      renderList();
+    }
+
+    // ── Search ──
+    document.getElementById('searchBox').addEventListener('input', function() {
+      currentSearch = this.value.trim();
+      renderList();
+    });
+
+    // ── Helpers ──
+    function getBlokPrefix(blok) {
+      var match = blok.match(/^([A-Za-z]+\d+)/);
+      return match ? match[1].toUpperCase() : 'LAIN';
+    }
+
+    function esc(s) {
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    // ── Init ──
+    loadData();
+    setInterval(loadData, 15000);
+  </script>
+</body>
+</html>
